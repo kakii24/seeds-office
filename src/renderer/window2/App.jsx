@@ -1,0 +1,116 @@
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import Header from './components/Header.jsx';
+import FilterBar from './components/FilterBar.jsx';
+import DeliveryTable from './components/DeliveryTable.jsx';
+import DeliveryModal from './components/DeliveryModal.jsx';
+import { useToast } from '../shared/Toast.jsx';
+import { fullName } from '../shared/constants.js';
+
+const emptyFilters = () => ({ search: '', culture: '', status: '', dateFrom: '', dateTo: '' });
+
+function parseAmount(v) {
+  if (v === null || v === undefined || v === '') return 0;
+  const n = Number(String(v).replace(/\s/g, '').replace(',', '.'));
+  return Number.isNaN(n) ? 0 : n;
+}
+
+export default function App() {
+  const toast = useToast();
+  const [deliveries, setDeliveries] = useState([]);
+  const [farmers, setFarmers] = useState([]);
+  const [filters, setFilters] = useState(emptyFilters());
+  const [modalOpen, setModalOpen] = useState(false);
+  const [editing, setEditing] = useState(null);
+
+  const load = useCallback(async () => {
+    try {
+      const [d, f] = await Promise.all([window.api.getDeliveries(), window.api.getFarmers()]);
+      setDeliveries(d);
+      setFarmers(f);
+    } catch (e) {
+      toast.error(`Erreur : ${e.message}`);
+    }
+  }, [toast]);
+
+  useEffect(() => {
+    load();
+    const off = window.api.onDataChanged(load);
+    return off;
+  }, [load]);
+
+  const filtered = useMemo(() => {
+    const q = filters.search.trim().toLowerCase();
+    return deliveries.filter((r) => {
+      if (q) {
+        const hay = `${fullName(r)} ${r.nin || ''}`.toLowerCase();
+        if (!hay.includes(q)) return false;
+      }
+      if (filters.culture && r.crop_category !== filters.culture) return false;
+      if (filters.status && (r.service_done || 'Non') !== filters.status) return false;
+      if (filters.dateFrom) {
+        if (!r.delivery_date || r.delivery_date < filters.dateFrom) return false;
+      }
+      if (filters.dateTo) {
+        if (!r.delivery_date || r.delivery_date > filters.dateTo) return false;
+      }
+      return true;
+    });
+  }, [deliveries, filters]);
+
+  const stats = useMemo(() => {
+    const done = filtered.filter((r) => r.service_done === 'Oui').length;
+    const amountTotal = filtered.reduce((sum, r) => sum + parseAmount(r.amount), 0);
+    return { total: filtered.length, done, pending: filtered.length - done, amountTotal };
+  }, [filtered]);
+
+  const onChangeFilters = (patch) => setFilters((f) => ({ ...f, ...patch }));
+  const onReset = () => setFilters(emptyFilters());
+
+  const handleNew = () => { setEditing(null); setModalOpen(true); };
+  const handleEdit = (row) => { setEditing(row); setModalOpen(true); };
+
+  const handleDelete = async (id) => {
+    if (!window.confirm('Êtes-vous sûr de vouloir supprimer cet enregistrement ?')) return;
+    try {
+      await window.api.deleteDelivery(id);
+      toast.deleted('Supprimé');
+      await load();
+    } catch (e) {
+      toast.error(`Erreur : ${e.message}`);
+    }
+  };
+
+  const handleSaved = async () => {
+    setModalOpen(false);
+    setEditing(null);
+    await load();
+  };
+
+  const handleExport = async () => {
+    try {
+      const res = await window.api.exportDeliveriesXlsx();
+      if (res?.success) toast.success('Fichier Excel exporté');
+      else if (res && !res.canceled) toast.error(`Erreur : ${res.error || 'export échoué'}`);
+    } catch (e) {
+      toast.error(`Erreur : ${e.message}`);
+    }
+  };
+
+  const handlePrint = () => window.api.printWindow();
+
+  return (
+    <div className="flex h-screen flex-col bg-canvas">
+      <Header stats={stats} onNew={handleNew} onExport={handleExport} onPrint={handlePrint} />
+      <FilterBar filters={filters} onChange={onChangeFilters} onReset={onReset} />
+      <DeliveryTable rows={filtered} onEdit={handleEdit} onDelete={handleDelete} />
+
+      <DeliveryModal
+        open={modalOpen}
+        onClose={() => { setModalOpen(false); setEditing(null); }}
+        onSaved={handleSaved}
+        farmers={farmers}
+        editing={editing}
+      />
+    </div>
+  );
+}
