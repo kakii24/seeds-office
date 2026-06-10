@@ -4,14 +4,15 @@ import Sidebar from './components/Sidebar.jsx';
 import RegistrationForm from './components/RegistrationForm.jsx';
 import PrintPreviewModal from './components/PrintPreviewModal.jsx';
 import { useToast } from '../shared/Toast.jsx';
-import { fullName } from '../shared/constants.js';
+import { fullName, displayDate } from '../shared/constants.js';
 
 const emptyFarmer = () => ({
-  id: null, last_name: '', first_name: '', dob: '', place_of_birth: '',
-  nin: '', issue_date: '', address: '', commune: '', daira: '', wilaya: '', phone: ''
+  id: null, last_name: '', first_name: '', raison_sociale: '', dob: '', place_of_birth: '',
+  nin: '', issue_date: '', address: '', commune: '', daira: '', wilaya: '', phone: '',
+  fax: '', work_permit_ref: ''
 });
 const emptyCrop = () => ({
-  crop_category: '', superficie: '', product_nature: '', quantity_requested: '', period: ''
+  crop_category: '', superficie: '', product_nature: '', quantity_requested: '', quantity_unit: '', period: ''
 });
 
 export default function App() {
@@ -52,7 +53,12 @@ export default function App() {
       const { farmer: f, crops: c } = await window.api.getFarmerDetail(id);
       if (!f) { toast.error('Erreur : agriculteur introuvable'); return; }
       setSelectedId(id);
-      setFarmer({ ...emptyFarmer(), ...f });
+      setFarmer({
+        ...emptyFarmer(),
+        ...f,
+        dob: f.dob ? displayDate(f.dob) : '',
+        issue_date: f.issue_date ? displayDate(f.issue_date) : '',
+      });
       setCrops(c.length ? c.map((x) => ({ ...emptyCrop(), ...x })) : [emptyCrop()]);
     } catch (e) {
       toast.error(`Erreur : ${e.message}`);
@@ -60,14 +66,30 @@ export default function App() {
   };
 
   const handleSave = async () => {
+    const isInvalidDate = (d) => d && !/^\d{2}\/\d{2}\/\d{4}$/.test(d);
+    
+    // Check missing mandatory fields
     const missing = [];
     if (!farmer.last_name.trim()) missing.push('Nom');
     if (!farmer.first_name.trim()) missing.push('Prénom');
+    if (!farmer.raison_sociale.trim()) missing.push('Raison Sociale');
     if (!farmer.nin.trim()) missing.push('NIN');
-    if (missing.length) {
-      toast.warn(`Veuillez remplir les champs obligatoires : ${missing.join(', ')}`);
+
+    // Check crop requests validation (each crop row must be completely filled)
+    const hasInvalidCrop = crops.some(c => 
+      !c.crop_category?.trim() ||
+      !c.superficie?.trim() ||
+      !c.product_nature?.trim() ||
+      !c.quantity_requested?.trim() ||
+      !c.quantity_unit?.trim() ||
+      !c.period?.trim()
+    );
+
+    if (missing.length || crops.length === 0 || hasInvalidCrop || isInvalidDate(farmer.dob) || isInvalidDate(farmer.issue_date)) {
+      toast.warn('Veuillez remplir les champs obligatoires');
       return;
     }
+
     setSaving(true);
     try {
       const res = await window.api.saveFarmer({ farmer, crops });
@@ -76,7 +98,12 @@ export default function App() {
         await loadFarmers();
         setSelectedId(res.farmerId);
         const detail = await window.api.getFarmerDetail(res.farmerId);
-        setFarmer({ ...emptyFarmer(), ...detail.farmer });
+        setFarmer({
+          ...emptyFarmer(),
+          ...detail.farmer,
+          dob: detail.farmer.dob ? displayDate(detail.farmer.dob) : '',
+          issue_date: detail.farmer.issue_date ? displayDate(detail.farmer.issue_date) : '',
+        });
         setCrops(detail.crops.length ? detail.crops.map((x) => ({ ...emptyCrop(), ...x })) : [emptyCrop()]);
       } else {
         toast.error('Erreur : enregistrement échoué');
@@ -101,13 +128,48 @@ export default function App() {
     }
   };
 
+  // NIN lookup auto-fill handler
+  const handleNINLookup = async (ninVal) => {
+    const nin = ninVal?.trim();
+    if (!nin) return;
+    try {
+      const existing = await window.api.getFarmerByNIN(nin);
+      if (existing) {
+        toast.success('Agriculteur trouvé — Données chargées');
+        const { farmer: f, crops: c } = await window.api.getFarmerDetail(existing.id);
+        setSelectedId(existing.id);
+        setFarmer({
+          ...emptyFarmer(),
+          ...f,
+          dob: f.dob ? displayDate(f.dob) : '',
+          issue_date: f.issue_date ? displayDate(f.issue_date) : '',
+        });
+        setCrops(c.length ? c.map((x) => ({ ...emptyCrop(), ...x })) : [emptyCrop()]);
+      }
+    } catch (e) {
+      toast.error(`Erreur : ${e.message}`);
+    }
+  };
+
+  const handleNINBlur = (e) => {
+    handleNINLookup(e.target.value);
+  };
+
+  const handleNINKeyDown = (e) => {
+    if (e.key === 'Enter' || e.key === 'Tab') {
+      handleNINLookup(e.target.value);
+    }
+  };
+
   const handlePrint = () => setPreviewOpen(true);
+  // Use the renderer's native print so the OS dialog appears and the user can
+  // pick ANY installed printer — the most compatible path across PCs/printers.
   const handlePrintNow = () => {
-    window.api.printWindow();
+    window.print();
   };
 
   return (
-    <div className="flex h-screen flex-col bg-canvas">
+    <div className="flex h-full flex-col bg-canvas">
       <Header
         onNew={handleNew}
         onSave={handleSave}
@@ -133,7 +195,14 @@ export default function App() {
               </span>
             </div>
           )}
-          <RegistrationForm farmer={farmer} onField={onField} crops={crops} setCrops={setCrops} />
+          <RegistrationForm 
+            farmer={farmer} 
+            onField={onField} 
+            crops={crops} 
+            setCrops={setCrops} 
+            onNINBlur={handleNINBlur}
+            onNINKeyDown={handleNINKeyDown}
+          />
         </main>
       </div>
 

@@ -70,15 +70,27 @@ body {
   }
 }
 
-/* Print isolation: only the .printable document is sent to the printer. --- */
+/* ----------------------------------------------------------------------- */
+/* Print isolation — only the .printable document reaches the printer.       */
+/* Uses the visibility technique (not display:none on ancestors) so the      */
+/* document prints even when it lives inside an overlay/modal. Triggered by  */
+/* the renderer's window.print(), so the OS dialog lets the user pick any    */
+/* installed printer — the most compatible approach across PCs and printers. */
+/* ----------------------------------------------------------------------- */
 @media print {
   @page {
     size: A4;
-    margin: 14mm;
+    margin: 1in;
   }
+
+  html,
   body {
     background: #ffffff !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
   }
+
+  /* Hide everything, then reveal only the printable document subtree. */
   body * {
     visibility: hidden !important;
   }
@@ -86,16 +98,45 @@ body {
   .printable * {
     visibility: visible !important;
   }
+
+  /* Pull the document to the page's top-left and stop ancestors clipping it. */
   .printable {
     position: absolute !important;
-    left: 0;
-    top: 0;
-    width: 100%;
-    margin: 0;
-    padding: 0;
+    left: 0 !important;
+    top: 0 !important;
+    width: 100% !important;
+    height: auto !important;
+    max-height: none !important;
+    overflow: visible !important;
+    margin: 0 !important;
     box-shadow: none !important;
     border-radius: 0 !important;
   }
+
+  /* Neutralise the preview overlay so it never clips the absolute document. */
+  .print-overlay {
+    position: static !important;
+    overflow: visible !important;
+    max-height: none !important;
+    background: transparent !important;
+    padding: 0 !important;
+  }
+
+  /* Wide tables (Window 2 tracking grid) must shrink to fit the page width. */
+  .print-wide table {
+    min-width: 0 !important;
+    width: 100% !important;
+    table-layout: fixed !important;
+    font-size: 9px !important;
+  }
+  .print-wide th,
+  .print-wide td {
+    padding: 3px 4px !important;
+    white-space: normal !important;
+    word-break: break-word !important;
+  }
+
+  /* Elements explicitly excluded from print (toolbars, buttons, nav, toasts). */
   .no-print {
     display: none !important;
   }

@@ -1,0 +1,57 @@
+name: Build Windows Installer
+
+# Produces the Seeds Office NSIS installer (.exe) on a real Windows runner.
+# Trigger it three ways:
+#   1. Manually  → Actions tab → "Build Windows Installer" → Run workflow
+#   2. On a tag  → push a tag like v1.0.0  (also attaches the .exe to a Release)
+#   3. (optional) uncomment the `push: branches` block to build on every push to main
+
+on:
+  workflow_dispatch:
+  push:
+    tags:
+      - 'v*'
+  # push:
+  #   branches: [ main ]
+
+permissions:
+  contents: write   # required so tagged builds can publish a GitHub Release
+
+jobs:
+  build-windows:
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Build renderers + Windows installer
+        run: npm run build
+        env:
+          # Build an unsigned installer (no code-signing certificate in CI).
+          CSC_IDENTITY_AUTO_DISCOVERY: 'false'
+
+      - name: Upload installer as build artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: seeds-office-windows-installer
+          path: |
+            release/*.exe
+            release/*.exe.blockmap
+          if-no-files-found: error
+
+      - name: Attach installer to GitHub Release (tag builds only)
+        if: startsWith(github.ref, 'refs/tags/')
+        uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            release/*.exe
+            release/*.exe.blockmap

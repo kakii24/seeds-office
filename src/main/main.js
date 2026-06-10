@@ -9,66 +9,37 @@ const dbApi = require('./database');
 const isDev = process.env.NODE_ENV === 'development';
 const DEV_SERVER = 'http://localhost:5173';
 
-let window1 = null;
-let window2 = null;
+let mainWindow = null;
 
 /* ------------------------------------------------------------------ */
-/* Window creation                                                     */
+/* Window creation — a single window; the renderer's nav bar switches  */
+/* between the Enregistrement and Suivi de Distribution views.         */
 /* ------------------------------------------------------------------ */
 
-const commonWebPrefs = {
-  preload: path.join(__dirname, 'preload.js'),
-  contextIsolation: true,
-  nodeIntegration: false,
-  sandbox: false
-};
-
-function loadRenderer(win, name) {
-  if (isDev) {
-    win.loadURL(`${DEV_SERVER}/${name}/index.html`);
-  } else {
-    win.loadFile(path.join(__dirname, `../../dist/renderer/${name}/index.html`));
-  }
-}
-
-function createWindow1() {
-  window1 = new BrowserWindow({
-    width: 1280,
-    height: 860,
-    minWidth: 1024,
-    minHeight: 640,
-    title: 'Enregistrement — Semences Subventionnées',
-    backgroundColor: '#f4faf6',
-    autoHideMenuBar: true,
-    webPreferences: commonWebPrefs
-  });
-  loadRenderer(window1, 'window1');
-  window1.on('closed', () => { window1 = null; });
-}
-
-function createWindow2() {
-  window2 = new BrowserWindow({
+function createMainWindow() {
+  mainWindow = new BrowserWindow({
     width: 1360,
-    height: 860,
+    height: 880,
     minWidth: 1100,
-    minHeight: 640,
-    title: 'Suivi de Distribution et Facturation',
+    minHeight: 660,
+    title: 'Bureau de Distribution des Semences Subventionnées',
     backgroundColor: '#f4faf6',
     autoHideMenuBar: true,
-    webPreferences: commonWebPrefs
+    webPreferences: {
+      preload: path.join(__dirname, 'preload.js'),
+      contextIsolation: true,
+      nodeIntegration: false,
+      sandbox: false
+    }
   });
-  loadRenderer(window2, 'window2');
-  window2.on('closed', () => { window2 = null; });
-}
 
-function createWindows() {
-  createWindow1();
-  createWindow2();
-  if (window1 && window2) {
-    // Offset the second window so both are visible on first launch.
-    const [x, y] = window1.getPosition();
-    window2.setPosition(x + 48, y + 48);
+  if (isDev) {
+    mainWindow.loadURL(`${DEV_SERVER}/index.html`);
+  } else {
+    mainWindow.loadFile(path.join(__dirname, '../../dist/renderer/index.html'));
   }
+
+  mainWindow.on('closed', () => { mainWindow = null; });
 }
 
 /** Tell every open window that the database changed so they can refresh. */
@@ -91,6 +62,7 @@ function registerIpc() {
   });
   ipcMain.handle('farmers:list', () => dbApi.getFarmers());
   ipcMain.handle('farmers:detail', (_e, id) => dbApi.getFarmerDetail(id));
+  ipcMain.handle('farmers:getByNIN', (_e, nin) => dbApi.getFarmerByNIN(nin));
   ipcMain.handle('farmers:delete', (_e, id) => {
     const res = dbApi.deleteFarmer(id);
     broadcastDataChanged();
@@ -128,35 +100,45 @@ function registerIpc() {
 /* Excel export                                                        */
 /* ------------------------------------------------------------------ */
 
+function displayDate(iso) {
+  if (!iso) return '';
+  const m = /^(\d{4})-(\d{2})-(\d{2})/.exec(iso);
+  if (!m) return iso;
+  return `${m[3]}/${m[2]}/${m[1]}`;
+}
+
 async function exportDeliveriesXlsx(event, farmerId) {
   const rows = dbApi.getDeliveries(farmerId);
 
   const data = rows.map((r, i) => ({
     'N°': i + 1,
-    'Agriculteur': `${r.last_name} ${r.first_name}`.trim(),
-    'NIN': r.nin || '',
-    'Culture': frenchCrop(r.crop_category),
-    'Produit': r.product_nature || '',
-    'Quantité demandée': r.quantity_requested || '',
-    'Période': r.period || '',
-    'Opérateur': r.operator || '',
-    'Quantité livrée': r.quantity_delivered || '',
-    'Montant (DA)': r.amount || '',
-    'N° Facture': r.invoice_number || '',
-    'Date de livraison': r.delivery_date || '',
-    'Service fait': r.service_done || 'Non'
+    'Agriculteur (الفلاح)': `${r.last_name} ${r.first_name}`.trim(),
+    'NIN (رقم التعريف الوطني)': r.nin || '',
+    'Culture (الصنف)': frenchCrop(r.crop_category),
+    'Produit (نوع المنتج)': r.product_nature || '',
+    'Quantité demandée (الكمية المطلوبة)': r.quantity_requested || '',
+    'Unité (الوحدة)': r.quantity_unit || 'Kg',
+    'Période (فترة الاستخدام)': r.period || '',
+    'Opérateur (المزود)': r.operator || '',
+    'Quantité livrée (الكمية المسلمة)': r.quantity_delivered || '',
+    'Montant (DA) (المبلغ)': r.amount || '',
+    'N° Facture (رقم الفاتورة)': r.invoice_number || '',
+    'Date de livraison (التاريخ)': r.delivery_date ? displayDate(r.delivery_date) : '',
+    'Service fait (الخدمة)': r.service_done || 'Non'
   }));
 
-  const ws = XLSX.utils.json_to_sheet(data, {
-    header: [
-      'N°', 'Agriculteur', 'NIN', 'Culture', 'Produit', 'Quantité demandée',
-      'Période', 'Opérateur', 'Quantité livrée', 'Montant (DA)', 'N° Facture',
-      'Date de livraison', 'Service fait'
-    ]
-  });
+  const headers = [
+    'N°', 'Agriculteur (الفلاح)', 'NIN (رقم التعريف الوطني)', 'Culture (الصنف)',
+    'Produit (نوع المنتج)', 'Quantité demandée (الكمية المطلوبة)', 'Unité (الوحدة)',
+    'Période (فترة الاستخدام)', 'Opérateur (المزود)', 'Quantité livrée (الكمية المسلمة)',
+    'Montant (DA) (المبلغ)', 'N° Facture (رقم الفاتورة)', 'Date de livraison (التاريخ)',
+    'Service fait (الخدمة)'
+  ];
+
+  const ws = XLSX.utils.json_to_sheet(data, { header: headers });
   ws['!cols'] = [
-    { wch: 5 }, { wch: 24 }, { wch: 16 }, { wch: 14 }, { wch: 18 }, { wch: 16 },
-    { wch: 14 }, { wch: 16 }, { wch: 14 }, { wch: 14 }, { wch: 14 }, { wch: 16 }, { wch: 12 }
+    { wch: 5 }, { wch: 24 }, { wch: 22 }, { wch: 16 }, { wch: 18 }, { wch: 20 },
+    { wch: 12 }, { wch: 16 }, { wch: 16 }, { wch: 16 }, { wch: 14 }, { wch: 14 }, { wch: 16 }, { wch: 12 }
   ];
 
   const wb = XLSX.utils.book_new();
@@ -202,10 +184,10 @@ app.whenReady().then(() => {
   const dbPath = path.join(app.getPath('userData'), 'seeds_office.db');
   dbApi.initDatabase(dbPath);
   registerIpc();
-  createWindows();
+  createMainWindow();
 
   app.on('activate', () => {
-    if (BrowserWindow.getAllWindows().length === 0) createWindows();
+    if (BrowserWindow.getAllWindows().length === 0) createMainWindow();
   });
 });
 

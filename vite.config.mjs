@@ -6,8 +6,8 @@ import { fileURLToPath } from 'node:url';
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const r = (p) => resolve(__dirname, p);
 
-// Multi-page Electron renderer: a single Vite dev server hosts both window
-// entry points. In production each BrowserWindow loads its own built HTML file.
+// Single-page renderer. One BrowserWindow loads this app; a top nav bar
+// switches between the "Enregistrement" and "Suivi de Distribution" views.
 // `base: './'` keeps asset URLs relative so Electron's loadFile() resolves them.
 export default defineConfig({
   root: r('src/renderer'),
@@ -20,12 +20,6 @@ export default defineConfig({
   build: {
     outDir: r('dist/renderer'),
     emptyOutDir: true,
-    target: 'chrome120',
-    rollupOptions: {
-      input: {
-        window1: r('src/renderer/window1/index.html'),
-        window2: r('src/renderer/window2/index.html')
-      }
-    }
+    target: 'chrome120'
   }
 });

@@ -24,7 +24,7 @@ export function FieldLabel({ fr, ar, required, htmlFor }) {
 export function Field({
   fr, ar, required, type = 'text', value, onChange,
   placeholder, accentClass = 'focus:border-forest-500 focus:ring-forest-500/30',
-  className = '', id
+  className = '', id, ...rest
 }) {
   return (
     <div className={className}>
@@ -37,6 +37,7 @@ export function Field({
         placeholder={placeholder}
         dir="ltr"
         className={`input-base focus:ring-2 ${accentClass}`}
+        {...rest}
       />
     </div>
   );

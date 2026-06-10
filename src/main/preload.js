@@ -12,6 +12,7 @@ contextBridge.exposeInMainWorld('api', {
   saveFarmer: (payload) => ipcRenderer.invoke('farmers:save', payload),
   getFarmers: () => ipcRenderer.invoke('farmers:list'),
   getFarmerDetail: (id) => ipcRenderer.invoke('farmers:detail', id),
+  getFarmerByNIN: (nin) => ipcRenderer.invoke('farmers:getByNIN', nin),
   deleteFarmer: (id) => ipcRenderer.invoke('farmers:delete', id),
 
   // Crop requests

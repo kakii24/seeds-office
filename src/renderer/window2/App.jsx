@@ -6,7 +6,7 @@ import DeliveryModal from './components/DeliveryModal.jsx';
 import { useToast } from '../shared/Toast.jsx';
 import { fullName } from '../shared/constants.js';
 
-const emptyFilters = () => ({ search: '', culture: '', status: '', dateFrom: '', dateTo: '' });
+const emptyFilters = () => ({ searchName: '', searchNIN: '', searchOperator: '', culture: '', status: '', dateFrom: '', dateTo: '' });
 
 function parseAmount(v) {
   if (v === null || v === undefined || v === '') return 0;
@@ -39,11 +39,22 @@ export default function App() {
   }, [load]);
 
   const filtered = useMemo(() => {
-    const q = filters.search.trim().toLowerCase();
+    const qName = filters.searchName.trim().toLowerCase();
+    const qNin = filters.searchNIN.trim().toLowerCase();
+    const qOp = filters.searchOperator.trim().toLowerCase();
+
     return deliveries.filter((r) => {
-      if (q) {
-        const hay = `${fullName(r)} ${r.nin || ''}`.toLowerCase();
-        if (!hay.includes(q)) return false;
+      if (qName) {
+        const hay = fullName(r).toLowerCase();
+        if (!hay.includes(qName)) return false;
+      }
+      if (qNin) {
+        const hay = (r.nin || '').toLowerCase();
+        if (!hay.includes(qNin)) return false;
+      }
+      if (qOp) {
+        const hay = (r.operator || '').toLowerCase();
+        if (!hay.includes(qOp)) return false;
       }
       if (filters.culture && r.crop_category !== filters.culture) return false;
       if (filters.status && (r.service_done || 'Non') !== filters.status) return false;
@@ -96,10 +107,11 @@ export default function App() {
     }
   };
 
-  const handlePrint = () => window.api.printWindow();
+  // Native print → OS dialog → works with any installed printer.
+  const handlePrint = () => window.print();
 
   return (
-    <div className="flex h-screen flex-col bg-canvas">
+    <div className="flex h-full flex-col bg-canvas">
       <Header stats={stats} onNew={handleNew} onExport={handleExport} onPrint={handlePrint} />
       <FilterBar filters={filters} onChange={onChangeFilters} onReset={onReset} />
       <DeliveryTable rows={filtered} onEdit={handleEdit} onDelete={handleDelete} />

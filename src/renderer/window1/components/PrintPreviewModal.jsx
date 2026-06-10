@@ -1,164 +1,276 @@
-import React from 'react';
-import { Modal } from '../../shared/ui.jsx';
-import { cropFr, cropAr, displayDate, todayISO } from '../../shared/constants.js';
-
-const INFO_FIELDS = [
-  ['Nom de famille', 'اللقب', 'last_name'],
-  ['Prénom', 'الاسم', 'first_name'],
-  ['Date de naissance', 'تاريخ الميلاد', 'dob', true],
-  ['Lieu de naissance', 'مكان الميلاد', 'place_of_birth'],
-  ['N° Carte Fellah / NIN', 'رقم بطاقة الفلاح', 'nin'],
-  ["Date d'émission", 'تاريخ الإصدار', 'issue_date', true],
-  ['Adresse', 'العنوان', 'address'],
-  ['Téléphone', 'رقم الهاتف', 'phone'],
-  ['Commune', 'البلدية', 'commune'],
-  ['Daïra', 'الدائرة', 'daira'],
-  ['Wilaya', 'الولاية', 'wilaya', false, true]
-];
-
-function val(farmer, key, isDate) {
-  const v = farmer[key];
-  if (!v) return '—';
-  return isDate ? displayDate(v) : v;
-}
+import React, { useEffect } from 'react';
+import { cropFr, displayDate, todayISO } from '../../shared/constants.js';
 
 export default function PrintPreviewModal({ open, onClose, farmer, crops, onPrint }) {
+  useEffect(() => {
+    if (!open) return undefined;
+    const onKey = (e) => { if (e.key === 'Escape') onClose(); };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [open, onClose]);
+
+  if (!open) return null;
+
   const rows = (crops || []).filter(
     (c) => c.crop_category || c.superficie || c.product_nature || c.quantity_requested || c.period
   );
 
-  const footer = (
-    <>
-      <button onClick={onClose} className="btn-neutral">Fermer</button>
-      <button onClick={onPrint} className="btn bg-forest-700 text-white hover:bg-forest-900">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-          <path d="M6 9V2h12v7M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2M6 14h12v8H6z" />
-        </svg>
-        Imprimer
-      </button>
-    </>
-  );
-
   return (
-    <Modal
-      open={open}
-      onClose={onClose}
-      title="Aperçu d'impression — Demande de Semences Subventionnées"
-      headerClass="bg-gradient-to-r from-forest-900 to-forest-700"
-      footer={footer}
-      maxWidth="max-w-4xl"
+    <div
+      className="print-overlay fixed inset-0 z-50 overflow-y-auto bg-black/50 p-4 animate-fade-in"
+      onClick={onClose}
     >
-      <div className="printable bg-white p-8 text-[12px] leading-relaxed text-black">
-        {/* Official header */}
-        <div className="text-center">
-          <p className="font-bold">République Algérienne Démocratique et Populaire</p>
-          <p className="font-arabic text-[13px] font-bold" dir="rtl">الجمهورية الجزائرية الديمقراطية الشعبية</p>
-          <p className="mt-1">Ministère de l'Agriculture et du Développement Rural</p>
-          <p className="font-arabic" dir="rtl">وزارة الفلاحة والتنمية الريفية</p>
-          <div className="mx-auto my-3 h-px w-2/3 bg-black/40" />
-          <h1 className="text-[15px] font-extrabold uppercase tracking-wide">
-            Demande d'obtention de semences et intrants agricoles subventionnés
-          </h1>
-          <p className="font-arabic text-[14px] font-bold" dir="rtl">طلب الحصول على البذور والمدخلات الفلاحية المدعومة</p>
+      <div className="mx-auto my-2 w-full max-w-4xl animate-modal-in" onClick={(e) => e.stopPropagation()}>
+        {/* Toolbar — excluded from print */}
+        <div className="no-print mb-3 flex items-center justify-between gap-3">
+          <h2 className="text-sm font-bold text-white drop-shadow">
+            Aperçu d'impression — Demande de Semences Subventionnées
+          </h2>
+          <div className="flex items-center gap-2">
+            <button onClick={onClose} className="btn-neutral">Fermer</button>
+            <button onClick={onPrint} className="btn bg-forest-700 text-white hover:bg-forest-900">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M6 9V2h12v7M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2M6 14h12v8H6z" />
+              </svg>
+              Imprimer
+            </button>
+          </div>
         </div>
 
-        {/* Subsidy badge + date */}
-        <div className="mt-4 flex items-center justify-between">
-          <span className="rounded-md border border-amber-500 bg-amber-50 px-3 py-1 text-[11px] font-bold text-amber-800">
-            Taux de Subvention de l'État: 50% — نسبة دعم الدولة: 50%
-          </span>
-          <span className="text-[11px] font-semibold">
-            Date de la demande: {displayDate(todayISO())}
-          </span>
-        </div>
+        {/* The official printable document */}
+        <div className="printable mx-auto rounded-lg bg-white p-12 text-[12px] leading-relaxed text-black shadow-modal font-sans" style={{ minHeight: '297mm', width: '210mm' }}>
+          
+          {/* Header Section */}
+          <div className="text-center">
+            <p className="font-bold uppercase tracking-wider text-[11px] leading-tight">
+              REPUBLIQUE ALGERIENNE DEMOCRATIQUE ET POPULAIRE
+            </p>
+            <p className="font-bold uppercase tracking-wider text-[10px] mt-1 leading-tight">
+              MINISTERE DE L'AGRICULTURE ET DU DEVELOPPEMENT RURAL
+            </p>
+            <div className="mx-auto my-4 h-[1px] w-1/3 bg-black" />
+            <h1 className="text-[13px] font-bold uppercase tracking-wide mt-2 px-4 leading-normal">
+              DEMANDE D'OBTENTION DE SEMENCES ET INTRANTS AGRICOLES SUBVENTIONNES
+            </h1>
+          </div>
 
-        {/* Section 1 — Identification */}
-        <h2 className="mt-5 border-b-2 border-forest-700 pb-1 text-[13px] font-bold text-forest-900">
-          1. Identification de l'Agriculteur <span className="font-arabic font-normal">— معلومات الفلاح</span>
-        </h2>
-        <table className="mt-2 w-full border-collapse text-[11.5px]">
-          <tbody>
-            {chunk(INFO_FIELDS, 2).map((pair, ri) => (
-              <tr key={ri}>
-                {pair.map(([fr, ar, key, isDate, full]) => (
-                  <React.Fragment key={key}>
-                    <td className="w-[22%] border border-gray-400 bg-gray-50 px-2 py-1 align-top font-semibold">
-                      {fr} <span className="font-arabic text-[10px] text-gray-500">({ar})</span>
-                    </td>
-                    <td className={`border border-gray-400 px-2 py-1 align-top ${full ? '' : ''}`} colSpan={pair.length === 1 ? 3 : 1}>
-                      {val(farmer, key, isDate)}
-                    </td>
-                  </React.Fragment>
-                ))}
-              </tr>
-            ))}
-          </tbody>
-        </table>
+          {/* Subsidy Badge and Date */}
+          <div className="mt-8 flex justify-between items-center text-[11px] border border-gray-400 p-2.5 rounded bg-gray-50/50">
+            <span className="font-bold text-gray-800">
+              Taux de Subvention de l'État: 50%
+            </span>
+            <span className="font-semibold text-gray-800">
+              Date de la Demande: {displayDate(todayISO())}
+            </span>
+          </div>
 
-        {/* Section 2 — Crop requests */}
-        <h2 className="mt-5 border-b-2 border-forest-700 pb-1 text-[13px] font-bold text-forest-900">
-          2. Demandes de Cultures et Semences <span className="font-arabic font-normal">— جدول الطلبات</span>
-        </h2>
-        <table className="mt-2 w-full border-collapse text-[11px]">
-          <thead>
-            <tr className="bg-forest-700 text-white">
-              <th className="border border-gray-500 px-2 py-1 text-left">N°</th>
-              <th className="border border-gray-500 px-2 py-1 text-left">Culture (الصنف)</th>
-              <th className="border border-gray-500 px-2 py-1 text-left">Superficie / ha (المساحة)</th>
-              <th className="border border-gray-500 px-2 py-1 text-left">Nature du produit (نوع المنتج)</th>
-              <th className="border border-gray-500 px-2 py-1 text-left">Quantité demandée (الكمية المطلوبة)</th>
-              <th className="border border-gray-500 px-2 py-1 text-left">Période (فترة الاستخدام)</th>
-            </tr>
-          </thead>
-          <tbody>
-            {rows.length === 0 ? (
-              <tr><td colSpan={6} className="border border-gray-400 px-2 py-3 text-center text-gray-500">Aucune demande</td></tr>
-            ) : (
-              rows.map((c, i) => (
-                <tr key={i}>
-                  <td className="border border-gray-400 px-2 py-1">{i + 1}</td>
-                  <td className="border border-gray-400 px-2 py-1">
-                    {cropFr(c.crop_category) || '—'}
-                    {cropAr(c.crop_category) && <span className="font-arabic text-[10px] text-gray-500"> ({cropAr(c.crop_category)})</span>}
-                  </td>
-                  <td className="border border-gray-400 px-2 py-1">{c.superficie || '—'}</td>
-                  <td className="border border-gray-400 px-2 py-1">{c.product_nature || '—'}</td>
-                  <td className="border border-gray-400 px-2 py-1">{c.quantity_requested || '—'}</td>
-                  <td className="border border-gray-400 px-2 py-1">{c.period || '—'}</td>
+          {/* SECTION 1: IDENTIFICATION */}
+          <div className="mt-8">
+            <h2 className="text-[12px] font-bold uppercase border-b-2 border-black pb-1 mb-4">
+              SECTION 1: IDENTIFICATION DE L'AGRICULTEUR
+            </h2>
+            <div className="space-y-3.5 text-[11px]">
+              <div className="flex gap-4">
+                <div className="flex-1">
+                  <span className="font-semibold">Nom de famille:</span>
+                  <span className="ml-2 border-b border-gray-400 inline-block flex-1 min-w-[200px] px-1 font-medium text-gray-900">
+                    {farmer.last_name || '\u00A0'}
+                  </span>
+                </div>
+                <div className="flex-1">
+                  <span className="font-semibold">Prénom:</span>
+                  <span className="ml-2 border-b border-gray-400 inline-block flex-1 min-w-[200px] px-1 font-medium text-gray-900">
+                    {farmer.first_name || '\u00A0'}
+                  </span>
+                </div>
+              </div>
+
+              <div className="flex">
+                <span className="font-semibold">Raison Sociale:</span>
+                <span className="ml-2 border-b border-gray-400 inline-block flex-1 px-1 font-medium text-gray-900">
+                  {farmer.raison_sociale || '\u00A0'}
+                </span>
+              </div>
+
+              <div className="flex gap-4">
+                <div className="flex-1">
+                  <span className="font-semibold">Numéro de Carte d'Identité Nationale:</span>
+                  <span className="ml-2 border-b border-gray-400 inline-block flex-1 min-w-[150px] px-1 font-mono text-[10px] text-gray-900">
+                    {farmer.nin || '\u00A0'}
+                  </span>
+                </div>
+                <div className="flex-[0.8]">
+                  <span className="font-semibold">Date d'Émission:</span>
+                  <span className="ml-2 border-b border-gray-400 inline-block flex-1 min-w-[120px] px-1 font-medium text-gray-900">
+                    {farmer.issue_date ? displayDate(farmer.issue_date) : '\u00A0'}
+                  </span>
+                </div>
+              </div>
+
+              <div className="flex gap-4">
+                <div className="flex-1">
+                  <span className="font-semibold">Date de Naissance:</span>
+                  <span className="ml-2 border-b border-gray-400 inline-block flex-1 min-w-[120px] px-1 font-medium text-gray-900">
+                    {farmer.dob ? displayDate(farmer.dob) : '\u00A0'}
+                  </span>
+                </div>
+                <div className="flex-1">
+                  <span className="font-semibold">Lieu de Naissance:</span>
+                  <span className="ml-2 border-b border-gray-400 inline-block flex-1 min-w-[180px] px-1 font-medium text-gray-900">
+                    {farmer.place_of_birth || '\u00A0'}
+                  </span>
+                </div>
+              </div>
+
+              <div className="flex">
+                <span className="font-semibold">Adresse:</span>
+                <span className="ml-2 border-b border-gray-400 inline-block flex-1 px-1 font-medium text-gray-900">
+                  {farmer.address || '\u00A0'}
+                </span>
+              </div>
+
+              <div className="flex gap-4">
+                <div className="flex-1 flex">
+                  <span className="font-semibold">Commune:</span>
+                  <span className="ml-2 border-b border-gray-400 inline-block flex-1 px-1 font-medium text-gray-900">
+                    {farmer.commune || '\u00A0'}
+                  </span>
+                </div>
+                <div className="flex-1 flex">
+                  <span className="font-semibold">Daïra:</span>
+                  <span className="ml-2 border-b border-gray-400 inline-block flex-1 px-1 font-medium text-gray-900">
+                    {farmer.daira || '\u00A0'}
+                  </span>
+                </div>
+                <div className="flex-1 flex">
+                  <span className="font-semibold">Wilaya:</span>
+                  <span className="ml-2 border-b border-gray-400 inline-block flex-1 px-1 font-medium text-gray-900">
+                    {farmer.wilaya || '\u00A0'}
+                  </span>
+                </div>
+              </div>
+
+              <div className="flex gap-4">
+                <div className="flex-1 flex">
+                  <span className="font-semibold">Téléphone:</span>
+                  <span className="ml-2 border-b border-gray-400 inline-block flex-1 px-1 font-medium text-gray-900">
+                    {farmer.phone || '\u00A0'}
+                  </span>
+                </div>
+                <div className="flex-1 flex">
+                  <span className="font-semibold">Fax:</span>
+                  <span className="ml-2 border-b border-gray-400 inline-block flex-1 px-1 font-medium text-gray-900">
+                    {farmer.fax || '\u00A0'}
+                  </span>
+                  <span className="text-[9px] text-gray-500 ml-1 mt-0.5">(Fax optionnel)</span>
+                </div>
+              </div>
+
+              <div className="flex">
+                <span className="font-semibold">Référence du Permis de Travail:</span>
+                <span className="ml-2 border-b border-gray-400 inline-block flex-1 px-1 font-medium text-gray-900">
+                  {farmer.work_permit_ref || '\u00A0'}
+                </span>
+                <span className="text-[9px] text-gray-500 ml-2 mt-0.5">(Optionnel)</span>
+              </div>
+            </div>
+          </div>
+
+          {/* SECTION 2: DEMANDES */}
+          <div className="mt-8">
+            <h2 className="text-[12px] font-bold uppercase border-b-2 border-black pb-1 mb-4">
+              SECTION 2: DEMANDES DE CULTURES ET SEMENCES
+            </h2>
+            <table className="w-full border-collapse border border-gray-400 text-[10.5px]">
+              <thead>
+                <tr className="bg-gray-100/70 text-center font-bold">
+                  <th className="border border-gray-400 px-2 py-1.5 w-10">N°</th>
+                  <th className="border border-gray-400 px-2 py-1.5 w-[160px]">
+                    <div>Culture</div>
+                    <div className="font-arabic text-[10px] font-normal mt-0.5 text-gray-600">(الصنف)</div>
+                  </th>
+                  <th className="border border-gray-400 px-2 py-1.5 w-[110px]">
+                    <div>Superficie</div>
+                    <div className="font-arabic text-[10px] font-normal mt-0.5 text-gray-600">(المساحة)</div>
+                  </th>
+                  <th className="border border-gray-400 px-2 py-1.5">
+                    <div>Nature du Produit</div>
+                    <div className="font-arabic text-[10px] font-normal mt-0.5 text-gray-600">(نوع المنتج)</div>
+                  </th>
+                  <th className="border border-gray-400 px-2 py-1.5 w-[80px]">Qté</th>
+                  <th className="border border-gray-400 px-2 py-1.5 w-[80px]">Unité</th>
+                  <th className="border border-gray-400 px-2 py-1.5 w-[100px]">Période</th>
                 </tr>
-              ))
-            )}
-          </tbody>
-        </table>
-
-        {/* Legal note */}
-        <div className="mt-5 rounded-md border border-gray-400 bg-gray-50 p-3 text-[11px]">
-          <p className="font-semibold">
-            L'agriculteur bénéficie d'une subvention de l'État à hauteur de 50% de la valeur des intrants agricoles demandés.
-          </p>
-          <p className="font-arabic mt-1 text-right" dir="rtl">يستفيد الفلاح من دعم الدولة بنسبة 50% من قيمة المدخلات الفلاحية المطلوبة.</p>
-        </div>
-
-        {/* Signatures */}
-        <div className="mt-8 grid grid-cols-2 gap-8 text-center text-[11.5px]">
-          <div>
-            <p className="font-semibold">Signature de l'Agriculteur</p>
-            <p className="font-arabic text-[11px] text-gray-600">توقيع الفلاح</p>
-            <div className="mt-12 border-t border-dashed border-gray-500" />
+              </thead>
+              <tbody>
+                {rows.map((c, i) => (
+                  <tr key={i} className="text-center h-8 font-medium">
+                    <td className="border border-gray-400 px-2 py-1">{i + 1}</td>
+                    <td className="border border-gray-400 px-2 py-1 text-left">{cropFr(c.crop_category) || '\u00A0'}</td>
+                    <td className="border border-gray-400 px-2 py-1">{c.superficie || '\u00A0'}</td>
+                    <td className="border border-gray-400 px-2 py-1 text-left uppercase">{c.product_nature || '\u00A0'}</td>
+                    <td className="border border-gray-400 px-2 py-1">{c.quantity_requested || '\u00A0'}</td>
+                    <td className="border border-gray-400 px-2 py-1">{c.quantity_unit || '\u00A0'}</td>
+                    <td className="border border-gray-400 px-2 py-1">{c.period || '\u00A0'}</td>
+                  </tr>
+                ))}
+                {/* Pad with empty rows to have at least 3 rows visually */}
+                {Array.from({ length: Math.max(0, 3 - rows.length) }).map((_, idx) => {
+                  const rowNum = rows.length + idx + 1;
+                  return (
+                    <tr key={`empty-${idx}`} className="h-8 text-center text-gray-400">
+                      <td className="border border-gray-400 px-2 py-1">{rowNum}</td>
+                      <td className="border border-gray-400 px-2 py-1"></td>
+                      <td className="border border-gray-400 px-2 py-1"></td>
+                      <td className="border border-gray-400 px-2 py-1"></td>
+                      <td className="border border-gray-400 px-2 py-1"></td>
+                      <td className="border border-gray-400 px-2 py-1"></td>
+                      <td className="border border-gray-400 px-2 py-1"></td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
           </div>
-          <div>
-            <p className="font-semibold">Cachet et Signature du Service</p>
-            <p className="font-arabic text-[11px] text-gray-600">ختم وتوقيع المصلحة</p>
-            <div className="mt-12 border-t border-dashed border-gray-500" />
+
+          {/* MENTIONS OBLIGATOIRES */}
+          <div className="mt-8 border-t border-gray-400 pt-4">
+            <h3 className="text-[11px] font-bold uppercase tracking-wider text-gray-800 mb-1">
+              MENTIONS OBLIGATOIRES
+            </h3>
+            <p className="text-[9.5px] text-gray-600 leading-normal">
+              L'agriculteur bénéficie d'une subvention de l'État à hauteur de 50% de la valeur des intrants agricoles demandés.
+            </p>
           </div>
+
+          {/* SIGNATURES */}
+          <div className="mt-12">
+            <div className="grid grid-cols-2 gap-8 text-[11px]">
+              <div className="text-center h-28 flex flex-col justify-between">
+                <div>
+                  <p className="font-bold">Signature de l'Agriculteur</p>
+                  <p className="text-gray-800 font-bold mt-1.5">{farmer.last_name || farmer.first_name ? `${farmer.last_name} ${farmer.first_name}`.trim() : ''}</p>
+                </div>
+                <div className="mt-auto border-t border-dashed border-gray-400 w-3/4 mx-auto pt-1 text-[9px] text-gray-400">
+                  Signature de l'Agriculteur
+                </div>
+              </div>
+              <div className="text-center h-28 flex flex-col justify-between">
+                <p className="font-bold">Cachet et Signature du Service</p>
+                <div className="mt-auto border-t border-dashed border-gray-400 w-3/4 mx-auto pt-1 text-[9px] text-gray-400">
+                  [Office Stamp & Signature]
+                </div>
+              </div>
+            </div>
+            
+            <div className="mt-8 text-center">
+              <p className="font-bold text-[11px]">Visa du Visionnaire de Permis</p>
+              <div className="mt-14 border-b border-dashed border-gray-400 w-1/3 mx-auto" />
+            </div>
+          </div>
+
         </div>
       </div>
-    </Modal>
+    </div>
   );
-}
-
-function chunk(arr, size) {
-  const out = [];
-  for (let i = 0; i < arr.length; i += size) out.push(arr.slice(i, i + size));
-  return out;
 }

@@ -23,10 +23,7 @@ function SectionCard({ title, ar, badge, children }) {
   );
 }
 
-const TH = ['Superficie / ha', 'Nature du produit', 'Quantité demandée / Kg-L', "Période d'utilisation"];
-const TH_AR = ['المساحة', 'نوع المنتج', 'الكمية المطلوبة', 'فترة الاستخدام'];
-
-export default function RegistrationForm({ farmer, onField, crops, setCrops }) {
+export default function RegistrationForm({ farmer, onField, crops, setCrops, onNINBlur, onNINKeyDown }) {
   const set = (field) => (val) => onField(field, val);
 
   const updateCrop = (i, field, val) => {
@@ -35,7 +32,7 @@ export default function RegistrationForm({ farmer, onField, crops, setCrops }) {
   const addRow = () => {
     setCrops((rows) => [
       ...rows,
-      { crop_category: '', superficie: '', product_nature: '', quantity_requested: '', period: '' }
+      { crop_category: '', superficie: '', product_nature: '', quantity_requested: '', quantity_unit: '', period: '' }
     ]);
   };
   const removeRow = (i) => setCrops((rows) => rows.filter((_, idx) => idx !== i));
@@ -47,15 +44,32 @@ export default function RegistrationForm({ farmer, onField, crops, setCrops }) {
         <div className="grid grid-cols-1 gap-x-5 gap-y-4 md:grid-cols-3">
           <Field fr="Nom de famille" ar="اللقب" required value={farmer.last_name} onChange={set('last_name')} accentClass={ACCENT} />
           <Field fr="Prénom" ar="الاسم" required value={farmer.first_name} onChange={set('first_name')} accentClass={ACCENT} />
-          <Field fr="Date de naissance" ar="تاريخ الميلاد" type="date" value={farmer.dob} onChange={set('dob')} accentClass={ACCENT} />
+          <Field fr="Raison Sociale" ar="الاسم الاجتماعي" required value={farmer.raison_sociale} onChange={set('raison_sociale')} accentClass={ACCENT} />
+          
+          <Field fr="Date de naissance" ar="تاريخ الميلاد" type="text" placeholder="JJ/MM/AAAA" value={farmer.dob} onChange={set('dob')} accentClass={ACCENT} />
           <Field fr="Lieu de naissance" ar="مكان الميلاد" value={farmer.place_of_birth} onChange={set('place_of_birth')} accentClass={ACCENT} />
-          <Field fr="N° Carte Fellah / NIN" ar="رقم بطاقة الفلاح" required value={farmer.nin} onChange={set('nin')} accentClass={ACCENT} />
-          <Field fr="Date d'émission" ar="تاريخ الإصدار" type="date" value={farmer.issue_date} onChange={set('issue_date')} accentClass={ACCENT} />
-          <Field fr="Adresse" ar="العنوان" value={farmer.address} onChange={set('address')} accentClass={ACCENT} className="md:col-span-3" />
+          
+          <Field 
+            fr="N° Carte Fellah / NIN" 
+            ar="رقم بطاقة الفلاح" 
+            required 
+            value={farmer.nin} 
+            onChange={set('nin')} 
+            accentClass={ACCENT} 
+            onBlur={onNINBlur}
+            onKeyDown={onNINKeyDown}
+          />
+          
+          <Field fr="Date d'émission" ar="تاريخ الإصدار" type="text" placeholder="JJ/MM/AAAA" value={farmer.issue_date} onChange={set('issue_date')} accentClass={ACCENT} />
+          <Field fr="Adresse" ar="العنوان" value={farmer.address} onChange={set('address')} accentClass={ACCENT} className="md:col-span-2" />
+          
           <Field fr="Commune" ar="البلدية" value={farmer.commune} onChange={set('commune')} accentClass={ACCENT} />
           <Field fr="Daïra" ar="الدائرة" value={farmer.daira} onChange={set('daira')} accentClass={ACCENT} />
           <Field fr="Wilaya" ar="الولاية" value={farmer.wilaya} onChange={set('wilaya')} accentClass={ACCENT} />
+          
           <Field fr="Téléphone" ar="رقم الهاتف" value={farmer.phone} onChange={set('phone')} accentClass={ACCENT} />
+          <Field fr="Fax" ar="الفاكس" value={farmer.fax} onChange={set('fax')} accentClass={ACCENT} />
+          <Field fr="Référence du Permis de Travail" ar="مرجع رخصة العمل" value={farmer.work_permit_ref} onChange={set('work_permit_ref')} accentClass={ACCENT} />
         </div>
       </SectionCard>
 
@@ -69,18 +83,28 @@ export default function RegistrationForm({ farmer, onField, crops, setCrops }) {
                 <th className="border-b border-gray-200 px-2 py-2">
                   Culture <ArabicHint>الصنف</ArabicHint>
                 </th>
-                {TH.map((h, i) => (
-                  <th key={h} className="border-b border-gray-200 px-2 py-2">
-                    {h} <ArabicHint>{TH_AR[i]}</ArabicHint>
-                  </th>
-                ))}
+                <th className="border-b border-gray-200 px-2 py-2">
+                  Superficie / ha <ArabicHint>المساحة</ArabicHint>
+                </th>
+                <th className="border-b border-gray-200 px-2 py-2">
+                  Nature du produit <ArabicHint>نوع المنتج</ArabicHint>
+                </th>
+                <th className="border-b border-gray-200 px-2 py-2">
+                  Quantité demandée <ArabicHint>الكمية المطلوبة</ArabicHint>
+                </th>
+                <th className="border-b border-gray-200 px-2 py-2">
+                  Unité <ArabicHint>الوحدة</ArabicHint>
+                </th>
+                <th className="border-b border-gray-200 px-2 py-2">
+                  Période d'utilisation <ArabicHint>فترة الاستخدام</ArabicHint>
+                </th>
                 <th className="w-12 border-b border-gray-200 px-2 py-2 text-center">Supprimer</th>
               </tr>
             </thead>
             <tbody>
               {crops.length === 0 ? (
                 <tr>
-                  <td colSpan={7} className="px-2 py-6 text-center text-sm text-gray-400">
+                  <td colSpan={8} className="px-2 py-6 text-center text-sm text-gray-400">
                     Aucune demande — cliquez sur « Ajouter une ligne »
                   </td>
                 </tr>
@@ -104,10 +128,26 @@ export default function RegistrationForm({ farmer, onField, crops, setCrops }) {
                       <input value={row.superficie} onChange={(e) => updateCrop(i, 'superficie', e.target.value)} dir="ltr" className={`input-base focus:ring-2 ${ACCENT}`} />
                     </td>
                     <td className="border-b border-gray-100 px-2 py-2">
-                      <input value={row.product_nature} onChange={(e) => updateCrop(i, 'product_nature', e.target.value)} dir="ltr" className={`input-base focus:ring-2 ${ACCENT}`} />
+                      <input 
+                        value={row.product_nature ? row.product_nature.toUpperCase() : ''} 
+                        onChange={(e) => updateCrop(i, 'product_nature', e.target.value.toUpperCase())} 
+                        dir="ltr" 
+                        className={`input-base focus:ring-2 ${ACCENT}`} 
+                      />
                     </td>
                     <td className="border-b border-gray-100 px-2 py-2">
                       <input value={row.quantity_requested} onChange={(e) => updateCrop(i, 'quantity_requested', e.target.value)} dir="ltr" className={`input-base focus:ring-2 ${ACCENT}`} />
+                    </td>
+                    <td className="border-b border-gray-100 px-2 py-2">
+                      <select
+                        value={row.quantity_unit || ''}
+                        onChange={(e) => updateCrop(i, 'quantity_unit', e.target.value)}
+                        className={`input-base focus:ring-2 ${ACCENT}`}
+                      >
+                        <option value="">— Unité —</option>
+                        <option value="L">L (Litres)</option>
+                        <option value="Kg">Kg (Kilogrammes)</option>
+                      </select>
                     </td>
                     <td className="border-b border-gray-100 px-2 py-2">
                       <input value={row.period} onChange={(e) => updateCrop(i, 'period', e.target.value)} dir="ltr" className={`input-base focus:ring-2 ${ACCENT}`} />

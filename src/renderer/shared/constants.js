@@ -43,9 +43,31 @@ export function todayISO() {
   return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
 }
 
+export function todayDMY() {
+  const d = new Date();
+  const pad = (n) => String(n).padStart(2, '0');
+  return `${pad(d.getDate())}/${pad(d.getMonth() + 1)}/${d.getFullYear()}`;
+}
+
+export function isoToDmY(iso) {
+  if (!iso) return '';
+  if (/^\d{2}\/\d{2}\/\d{4}$/.test(iso)) return iso;
+  const m = /^(\d{4})-(\d{2})-(\d{2})/.exec(iso);
+  if (!m) return iso;
+  return `${m[3]}/${m[2]}/${m[1]}`;
+}
+
+export function dmYToIso(dmy) {
+  if (!dmy) return '';
+  const m = /^(\d{2})\/(\d{2})\/(\d{4})/.exec(dmy);
+  if (!m) return dmy;
+  return `${m[3]}-${m[2]}-${m[1]}`;
+}
+
 // Pretty French-style date display (DD/MM/YYYY) from an ISO yyyy-mm-dd value.
 export function displayDate(iso) {
   if (!iso) return '—';
+  if (/^\d{2}\/\d{2}\/\d{4}$/.test(iso)) return iso;
   const m = /^(\d{4})-(\d{2})-(\d{2})/.exec(iso);
   if (!m) return iso;
   return `${m[3]}/${m[2]}/${m[1]}`;
