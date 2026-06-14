@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef, useMemo } from 'react';
 import { Modal, Field, FieldLabel } from '../../shared/ui.jsx';
 import { cropFr, cropAr, displayDate, todayDMY, fullName } from '../../shared/constants.js';
 import { useToast } from '../../shared/Toast.jsx';
@@ -70,9 +70,25 @@ export default function DeliveryModal({ open, onClose, onSaved, farmers, editing
   const [ninSearch, setNinSearch] = useState('');
   const [searchedFarmer, setSearchedFarmer] = useState(null);
 
+  const inputRef = useRef(null);
+
+  // Autofocus the NIN search input field when opening in non-edit mode
+  useEffect(() => {
+    if (open && !isEdit) {
+      const timer = setTimeout(() => {
+        if (inputRef.current) {
+          inputRef.current.focus();
+          inputRef.current.select();
+        }
+      }, 100);
+      return () => clearTimeout(timer);
+    }
+  }, [open, isEdit]);
+
   // Initialise the modal each time it opens or the edited row changes.
   useEffect(() => {
     if (!open) return;
+    let active = true;
     if (editing) {
       setFarmerId(String(editing.farmer_id));
       setCropId(String(editing.crop_request_id));
@@ -81,7 +97,9 @@ export default function DeliveryModal({ open, onClose, onSaved, farmers, editing
       
       // Fetch details to show farmer card in edit mode
       window.api.getFarmerDetail(editing.farmer_id).then(({ farmer }) => {
-        setSearchedFarmer(farmer);
+        if (active) {
+          setSearchedFarmer(farmer);
+        }
       });
 
       setFields({
@@ -100,7 +118,35 @@ export default function DeliveryModal({ open, onClose, onSaved, farmers, editing
       setSearchedFarmer(null);
       setFields(emptyFields());
     }
+    return () => {
+      active = false;
+    };
   }, [open, editing]);
+
+  // Real-time suggestions list matching NIN or Name
+  const suggestions = useMemo(() => {
+    const query = ninSearch.trim().toLowerCase();
+    if (!query || searchedFarmer) return [];
+    return (farmers || []).filter((f) => {
+      const ninMatch = (f.nin || '').toLowerCase().includes(query);
+      const nameMatch = `${f.last_name || ''} ${f.first_name || ''}`.toLowerCase().includes(query);
+      const revNameMatch = `${f.first_name || ''} ${f.last_name || ''}`.toLowerCase().includes(query);
+      return ninMatch || nameMatch || revNameMatch;
+    });
+  }, [farmers, ninSearch, searchedFarmer]);
+
+  const handleSelectFarmer = async (f) => {
+    setFarmerId(String(f.id));
+    setSearchedFarmer(f);
+    setNinSearch(`${f.last_name || ''} ${f.first_name || ''} (${f.nin || ''})`);
+    try {
+      const list = await window.api.getCropRequestsForFarmer(f.id);
+      setCropOptions(list);
+      setCropId('');
+    } catch (err) {
+      toast.error(`Erreur : ${err.message}`);
+    }
+  };
 
   const setField = (k) => (v) => setFields((f) => ({ ...f, [k]: v }));
 
@@ -109,6 +155,10 @@ export default function DeliveryModal({ open, onClose, onSaved, farmers, editing
       e.preventDefault();
       const val = ninSearch.trim();
       if (!val) return;
+      if (suggestions.length > 0) {
+        handleSelectFarmer(suggestions[0]);
+        return;
+      }
       try {
         const existing = await window.api.getFarmerByNIN(val);
         if (existing) {
@@ -132,7 +182,7 @@ export default function DeliveryModal({ open, onClose, onSaved, farmers, editing
   };
 
   // The crop details shown in the info card.
-  const cropInfo = isEdit
+  const cropInfo = isEdit && editing
     ? {
         crop_category: editing.crop_category, superficie: editing.superficie,
         product_nature: editing.product_nature, quantity_requested: editing.quantity_requested,
@@ -196,17 +246,46 @@ export default function DeliveryModal({ open, onClose, onSaved, farmers, editing
     >
       <div className="flex flex-col gap-4">
         {!isEdit && (
-          <div>
-            <FieldLabel fr="Rechercher l'Agriculteur par NIN" ar="البحث عن الفلاح بواسطة رقم التعريف الوطني" required />
+          <div className="relative">
+            <FieldLabel fr="Rechercher l'Agriculteur (NIN ou Nom)" ar="البحث عن الفلاح بواسطة رقم التعريف أو الاسم" required />
             <input
+              ref={inputRef}
               type="text"
               value={ninSearch}
-              onChange={(e) => setNinSearch(e.target.value)}
+              onChange={(e) => {
+                const val = e.target.value;
+                setNinSearch(val);
+                if (!val.trim()) {
+                  setFarmerId('');
+                  setSearchedFarmer(null);
+                  setCropOptions([]);
+                  setCropId('');
+                }
+              }}
               onKeyDown={handleNinSearch}
-              placeholder="Entrez le NIN et appuyez sur Entrée..."
+              placeholder="Entrez le nom, prénom ou NIN..."
               dir="ltr"
               className={`input-base focus:ring-2 ${ACCENT}`}
             />
+            {suggestions.length > 0 && (
+              <div className="absolute left-0 right-0 z-50 mt-1 max-h-60 overflow-y-auto rounded-lg border border-gray-200 bg-white shadow-lg">
+                {suggestions.map((f) => (
+                  <button
+                    key={f.id}
+                    type="button"
+                    onClick={() => handleSelectFarmer(f)}
+                    className="flex w-full flex-col px-4 py-2 text-left hover:bg-olive-700/5 transition border-b border-gray-50 last:border-0"
+                  >
+                    <span className="font-bold text-gray-800 text-sm">
+                      {f.last_name} {f.first_name}
+                    </span>
+                    <span className="text-xs text-gray-500 font-mono">
+                      NIN: {f.nin || '—'} | Commune: {f.commune || '—'}
+                    </span>
+                  </button>
+                ))}
+              </div>
+            )}
           </div>
         )}
 

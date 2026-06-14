@@ -4,6 +4,7 @@ import Sidebar from './components/Sidebar.jsx';
 import RegistrationForm from './components/RegistrationForm.jsx';
 import PrintPreviewModal from './components/PrintPreviewModal.jsx';
 import { useToast } from '../shared/Toast.jsx';
+import { ConfirmModal } from '../shared/ui.jsx';
 import { fullName, displayDate } from '../shared/constants.js';
 
 const emptyFarmer = () => ({
@@ -24,6 +25,7 @@ export default function App() {
   const [crops, setCrops] = useState([emptyCrop()]);
   const [saving, setSaving] = useState(false);
   const [previewOpen, setPreviewOpen] = useState(false);
+  const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
 
   const loadFarmers = useCallback(async () => {
     try {
@@ -59,7 +61,7 @@ export default function App() {
         dob: f.dob ? displayDate(f.dob) : '',
         issue_date: f.issue_date ? displayDate(f.issue_date) : '',
       });
-      setCrops(c.length ? c.map((x) => ({ ...emptyCrop(), ...x })) : [emptyCrop()]);
+      setCrops(c.length ? c.slice(0, 1).map((x) => ({ ...emptyCrop(), ...x })) : [emptyCrop()]);
     } catch (e) {
       toast.error(`Erreur : ${e.message}`);
     }
@@ -104,7 +106,7 @@ export default function App() {
           dob: detail.farmer.dob ? displayDate(detail.farmer.dob) : '',
           issue_date: detail.farmer.issue_date ? displayDate(detail.farmer.issue_date) : '',
         });
-        setCrops(detail.crops.length ? detail.crops.map((x) => ({ ...emptyCrop(), ...x })) : [emptyCrop()]);
+        setCrops(detail.crops.length ? detail.crops.slice(0, 1).map((x) => ({ ...emptyCrop(), ...x })) : [emptyCrop()]);
       } else {
         toast.error('Erreur : enregistrement échoué');
       }
@@ -115,9 +117,13 @@ export default function App() {
     }
   };
 
-  const handleDelete = async () => {
+  const handleDelete = () => {
     if (!selectedId) return;
-    if (!window.confirm('Êtes-vous sûr de vouloir supprimer cet enregistrement ?')) return;
+    setDeleteConfirmOpen(true);
+  };
+
+  const performDelete = async () => {
+    if (!selectedId) return;
     try {
       await window.api.deleteFarmer(selectedId);
       toast.deleted('Supprimé');
@@ -144,7 +150,7 @@ export default function App() {
           dob: f.dob ? displayDate(f.dob) : '',
           issue_date: f.issue_date ? displayDate(f.issue_date) : '',
         });
-        setCrops(c.length ? c.map((x) => ({ ...emptyCrop(), ...x })) : [emptyCrop()]);
+        setCrops(c.length ? c.slice(0, 1).map((x) => ({ ...emptyCrop(), ...x })) : [emptyCrop()]);
       }
     } catch (e) {
       toast.error(`Erreur : ${e.message}`);
@@ -212,6 +218,16 @@ export default function App() {
         farmer={farmer}
         crops={crops}
         onPrint={handlePrintNow}
+      />
+
+      <ConfirmModal
+        open={deleteConfirmOpen}
+        onClose={() => setDeleteConfirmOpen(false)}
+        onConfirm={performDelete}
+        title="Supprimer l'agriculteur"
+        message="Êtes-vous sûr de vouloir supprimer cet agriculteur et toutes ses demandes associées ?"
+        confirmText="Supprimer"
+        cancelText="Annuler"
       />
     </div>
   );

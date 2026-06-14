@@ -4,6 +4,7 @@ import FilterBar from './components/FilterBar.jsx';
 import DeliveryTable from './components/DeliveryTable.jsx';
 import DeliveryModal from './components/DeliveryModal.jsx';
 import { useToast } from '../shared/Toast.jsx';
+import { ConfirmModal } from '../shared/ui.jsx';
 import { fullName } from '../shared/constants.js';
 
 const emptyFilters = () => ({ searchName: '', searchNIN: '', searchOperator: '', culture: '', status: '', dateFrom: '', dateTo: '' });
@@ -21,6 +22,7 @@ export default function App() {
   const [filters, setFilters] = useState(emptyFilters());
   const [modalOpen, setModalOpen] = useState(false);
   const [editing, setEditing] = useState(null);
+  const [deleteConfirmId, setDeleteConfirmId] = useState(null);
 
   const load = useCallback(async () => {
     try {
@@ -80,10 +82,14 @@ export default function App() {
   const handleNew = () => { setEditing(null); setModalOpen(true); };
   const handleEdit = (row) => { setEditing(row); setModalOpen(true); };
 
-  const handleDelete = async (id) => {
-    if (!window.confirm('Êtes-vous sûr de vouloir supprimer cet enregistrement ?')) return;
+  const handleDelete = (id) => {
+    setDeleteConfirmId(id);
+  };
+
+  const performDelete = async () => {
+    if (!deleteConfirmId) return;
     try {
-      await window.api.deleteDelivery(id);
+      await window.api.deleteDelivery(deleteConfirmId);
       toast.deleted('Supprimé');
       await load();
     } catch (e) {
@@ -122,6 +128,16 @@ export default function App() {
         onSaved={handleSaved}
         farmers={farmers}
         editing={editing}
+      />
+
+      <ConfirmModal
+        open={deleteConfirmId !== null}
+        onClose={() => setDeleteConfirmId(null)}
+        onConfirm={performDelete}
+        title="Supprimer la livraison"
+        message="Êtes-vous sûr de vouloir supprimer cet enregistrement de livraison ?"
+        confirmText="Supprimer"
+        cancelText="Annuler"
       />
     </div>
   );

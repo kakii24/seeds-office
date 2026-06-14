@@ -29,13 +29,6 @@ export default function RegistrationForm({ farmer, onField, crops, setCrops, onN
   const updateCrop = (i, field, val) => {
     setCrops((rows) => rows.map((r, idx) => (idx === i ? { ...r, [field]: val } : r)));
   };
-  const addRow = () => {
-    setCrops((rows) => [
-      ...rows,
-      { crop_category: '', superficie: '', product_nature: '', quantity_requested: '', quantity_unit: '', period: '' }
-    ]);
-  };
-  const removeRow = (i) => setCrops((rows) => rows.filter((_, idx) => idx !== i));
 
   return (
     <div className="mx-auto flex w-full max-w-5xl flex-col gap-6">
@@ -98,14 +91,13 @@ export default function RegistrationForm({ farmer, onField, crops, setCrops, onN
                 <th className="border-b border-gray-200 px-2 py-2">
                   Période d'utilisation <ArabicHint>فترة الاستخدام</ArabicHint>
                 </th>
-                <th className="w-12 border-b border-gray-200 px-2 py-2 text-center">Supprimer</th>
               </tr>
             </thead>
             <tbody>
               {crops.length === 0 ? (
                 <tr>
-                  <td colSpan={8} className="px-2 py-6 text-center text-sm text-gray-400">
-                    Aucune demande — cliquez sur « Ajouter une ligne »
+                  <td colSpan={7} className="px-2 py-6 text-center text-sm text-gray-400">
+                    Aucune demande
                   </td>
                 </tr>
               ) : (
@@ -152,28 +144,12 @@ export default function RegistrationForm({ farmer, onField, crops, setCrops, onN
                     <td className="border-b border-gray-100 px-2 py-2">
                       <input value={row.period} onChange={(e) => updateCrop(i, 'period', e.target.value)} dir="ltr" className={`input-base focus:ring-2 ${ACCENT}`} />
                     </td>
-                    <td className="border-b border-gray-100 px-2 py-2 text-center">
-                      <button
-                        onClick={() => removeRow(i)}
-                        className="rounded-lg p-1.5 text-red-500 transition hover:bg-red-50"
-                        title="Supprimer la ligne"
-                      >
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M18 6 6 18M6 6l12 12" /></svg>
-                      </button>
-                    </td>
                   </tr>
                 ))
               )}
             </tbody>
           </table>
         </div>
-        <button
-          onClick={addRow}
-          className="mt-4 inline-flex items-center gap-2 rounded-lg border border-dashed border-forest-500 px-4 py-2 text-sm font-semibold text-forest-700 transition hover:bg-forest-500/5"
-        >
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M12 5v14M5 12h14" /></svg>
-          Ajouter une ligne
-        </button>
       </SectionCard>
     </div>
   );

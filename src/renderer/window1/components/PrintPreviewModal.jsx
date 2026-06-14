@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { cropFr, displayDate, todayISO } from '../../shared/constants.js';
+import { cropFr, displayDate } from '../../shared/constants.js';
 
 export default function PrintPreviewModal({ open, onClose, farmer, crops, onPrint }) {
   useEffect(() => {
@@ -45,227 +45,257 @@ export default function PrintPreviewModal({ open, onClose, farmer, crops, onPrin
             <p className="font-bold uppercase tracking-wider text-[11px] leading-tight">
               REPUBLIQUE ALGERIENNE DEMOCRATIQUE ET POPULAIRE
             </p>
-            <p className="font-bold uppercase tracking-wider text-[10px] mt-1 leading-tight">
-              MINISTERE DE L'AGRICULTURE ET DU DEVELOPPEMENT RURAL
+            <p className="font-bold text-[13px] mt-1.5 leading-tight font-arabic" dir="rtl">
+              وزارة الفلاحة والتنمية الريفية والصيد البحري
             </p>
-            <div className="mx-auto my-4 h-[1px] w-1/3 bg-black" />
-            <h1 className="text-[13px] font-bold uppercase tracking-wide mt-2 px-4 leading-normal">
-              DEMANDE D'OBTENTION DE SEMENCES ET INTRANTS AGRICOLES SUBVENTIONNES
-            </h1>
+            <p className="font-bold uppercase tracking-wider text-[9.5px] mt-1 leading-tight">
+              MINISTERE DE L'AGRICULTURE ET DU DEVELOPPEMENT RURAL ET DE LA PECHE
+            </p>
+            <p className="font-bold text-[12px] mt-1 leading-tight font-arabic" dir="rtl">
+              مديرية المصالح الفلاحية
+            </p>
           </div>
 
-          {/* Subsidy Badge and Date */}
-          <div className="mt-8 flex justify-between items-center text-[11px] border border-gray-400 p-2.5 rounded bg-gray-50/50">
-            <span className="font-bold text-gray-800">
-              Taux de Subvention de l'État: 50%
-            </span>
-            <span className="font-semibold text-gray-800">
-              Date de la Demande: {displayDate(todayISO())}
-            </span>
-          </div>
-
-          {/* SECTION 1: IDENTIFICATION */}
-          <div className="mt-8">
-            <h2 className="text-[12px] font-bold uppercase border-b-2 border-black pb-1 mb-4">
-              SECTION 1: IDENTIFICATION DE L'AGRICULTEUR
-            </h2>
-            <div className="space-y-3.5 text-[11px]">
-              <div className="flex gap-4">
-                <div className="flex-1">
-                  <span className="font-semibold">Nom de famille:</span>
-                  <span className="ml-2 border-b border-gray-400 inline-block flex-1 min-w-[200px] px-1 font-medium text-gray-900">
-                    {farmer.last_name || '\u00A0'}
-                  </span>
-                </div>
-                <div className="flex-1">
-                  <span className="font-semibold">Prénom:</span>
-                  <span className="ml-2 border-b border-gray-400 inline-block flex-1 min-w-[200px] px-1 font-medium text-gray-900">
-                    {farmer.first_name || '\u00A0'}
-                  </span>
-                </div>
-              </div>
-
-              <div className="flex">
-                <span className="font-semibold">Raison Sociale:</span>
-                <span className="ml-2 border-b border-gray-400 inline-block flex-1 px-1 font-medium text-gray-900">
-                  {farmer.raison_sociale || '\u00A0'}
-                </span>
-              </div>
-
-              <div className="flex gap-4">
-                <div className="flex-1">
-                  <span className="font-semibold">Numéro de Carte d'Identité Nationale:</span>
-                  <span className="ml-2 border-b border-gray-400 inline-block flex-1 min-w-[150px] px-1 font-mono text-[10px] text-gray-900">
-                    {farmer.nin || '\u00A0'}
-                  </span>
-                </div>
-                <div className="flex-[0.8]">
-                  <span className="font-semibold">Date d'Émission:</span>
-                  <span className="ml-2 border-b border-gray-400 inline-block flex-1 min-w-[120px] px-1 font-medium text-gray-900">
-                    {farmer.issue_date ? displayDate(farmer.issue_date) : '\u00A0'}
-                  </span>
-                </div>
-              </div>
-
-              <div className="flex gap-4">
-                <div className="flex-1">
-                  <span className="font-semibold">Date de Naissance:</span>
-                  <span className="ml-2 border-b border-gray-400 inline-block flex-1 min-w-[120px] px-1 font-medium text-gray-900">
-                    {farmer.dob ? displayDate(farmer.dob) : '\u00A0'}
-                  </span>
-                </div>
-                <div className="flex-1">
-                  <span className="font-semibold">Lieu de Naissance:</span>
-                  <span className="ml-2 border-b border-gray-400 inline-block flex-1 min-w-[180px] px-1 font-medium text-gray-900">
-                    {farmer.place_of_birth || '\u00A0'}
-                  </span>
-                </div>
-              </div>
-
-              <div className="flex">
-                <span className="font-semibold">Adresse:</span>
-                <span className="ml-2 border-b border-gray-400 inline-block flex-1 px-1 font-medium text-gray-900">
-                  {farmer.address || '\u00A0'}
-                </span>
-              </div>
-
-              <div className="flex gap-4">
-                <div className="flex-1 flex">
-                  <span className="font-semibold">Commune:</span>
-                  <span className="ml-2 border-b border-gray-400 inline-block flex-1 px-1 font-medium text-gray-900">
-                    {farmer.commune || '\u00A0'}
-                  </span>
-                </div>
-                <div className="flex-1 flex">
-                  <span className="font-semibold">Daïra:</span>
-                  <span className="ml-2 border-b border-gray-400 inline-block flex-1 px-1 font-medium text-gray-900">
-                    {farmer.daira || '\u00A0'}
-                  </span>
-                </div>
-                <div className="flex-1 flex">
-                  <span className="font-semibold">Wilaya:</span>
-                  <span className="ml-2 border-b border-gray-400 inline-block flex-1 px-1 font-medium text-gray-900">
-                    {farmer.wilaya || '\u00A0'}
-                  </span>
-                </div>
-              </div>
-
-              <div className="flex gap-4">
-                <div className="flex-1 flex">
-                  <span className="font-semibold">Téléphone:</span>
-                  <span className="ml-2 border-b border-gray-400 inline-block flex-1 px-1 font-medium text-gray-900">
-                    {farmer.phone || '\u00A0'}
-                  </span>
-                </div>
-                <div className="flex-1 flex">
-                  <span className="font-semibold">Fax:</span>
-                  <span className="ml-2 border-b border-gray-400 inline-block flex-1 px-1 font-medium text-gray-900">
-                    {farmer.fax || '\u00A0'}
-                  </span>
-                  <span className="text-[9px] text-gray-500 ml-1 mt-0.5">(Fax optionnel)</span>
-                </div>
-              </div>
-
-              <div className="flex">
-                <span className="font-semibold">Référence du Permis de Travail:</span>
-                <span className="ml-2 border-b border-gray-400 inline-block flex-1 px-1 font-medium text-gray-900">
-                  {farmer.work_permit_ref || '\u00A0'}
-                </span>
-                <span className="text-[9px] text-gray-500 ml-2 mt-0.5">(Optionnel)</span>
-              </div>
+          {/* Subdivision and Support Badge */}
+          <div className="flex justify-between items-end mt-4 text-[11px]">
+            <div className="flex items-end flex-1 min-w-[280px]">
+              <span className="font-bold shrink-0">Subdivision de l'Agriculture :</span>
+              <span className="ml-1 border-b border-dotted border-black inline-block flex-1 px-1 font-bold text-[12px]">
+                OUED RHIOU
+              </span>
+            </div>
+            <div className="border border-black px-3 py-1 font-bold text-[10px] tracking-wide uppercase bg-gray-50 shrink-0 ml-4">
+              CONCERNE PAR LE SOUTIEN DE 50%
             </div>
           </div>
 
-          {/* SECTION 2: DEMANDES */}
-          <div className="mt-8">
-            <h2 className="text-[12px] font-bold uppercase border-b-2 border-black pb-1 mb-4">
-              SECTION 2: DEMANDES DE CULTURES ET SEMENCES
-            </h2>
-            <table className="w-full border-collapse border border-gray-400 text-[10.5px]">
+          {/* Centered Title Box */}
+          <div className="mt-6 border border-black p-3.5 text-center mx-auto max-w-[95%]">
+            <h1 className="text-[12px] font-bold uppercase tracking-wide leading-normal">
+              DEMANDE D'ACQUISITION EN MATIERES ET PRODUITS CHIMIQUES<br />
+              CLASSES A USAGE AGRICOLE PAR LES AGRICULTEURS<br />
+              <span className="text-[10px] font-bold lowercase">(Liste du MEM)</span>
+            </h1>
+          </div>
+
+          {/* 1- Identification de l'agriculteur */}
+          <div className="mt-6">
+            <h2 className="text-[11.5px] font-bold mb-2">1- Identification de l'agriculteur</h2>
+            <div className="space-y-3.5 text-[11px]">
+              
+              <div className="flex items-end gap-2 w-full">
+                <span className="shrink-0 font-medium">Nom :</span>
+                <span className="flex-1 border-b border-dotted border-black/70 px-1 font-semibold text-gray-900 min-h-[16px]">
+                  {farmer.last_name || ''}
+                </span>
+                <span className="shrink-0 font-medium">Prénom :</span>
+                <span className="flex-1 border-b border-dotted border-black/70 px-1 font-semibold text-gray-900 min-h-[16px]">
+                  {farmer.first_name || ''}
+                </span>
+              </div>
+
+              <div className="flex items-end gap-2 w-full">
+                <span className="shrink-0 font-medium">Date de naissance :</span>
+                <span className="w-[180px] border-b border-dotted border-black/70 px-1 font-semibold text-gray-900 min-h-[16px]">
+                  {farmer.dob ? displayDate(farmer.dob) : ''}
+                </span>
+                <span className="shrink-0 font-medium">lieu de naissance :</span>
+                <span className="flex-1 border-b border-dotted border-black/70 px-1 font-semibold text-gray-900 min-h-[16px]">
+                  {farmer.place_of_birth || ''}
+                </span>
+              </div>
+
+              <div className="flex items-end gap-2 w-full">
+                <span className="shrink-0 font-medium">Immatriculation N° national carte de fellah :</span>
+                <span className="flex-1 border-b border-dotted border-black/70 px-1 font-mono text-[10px] font-semibold text-gray-900 min-h-[16px]">
+                  {farmer.nin || ''}
+                </span>
+                <span className="shrink-0 font-medium">NIN :</span>
+                <span className="w-[150px] border-b border-dotted border-black/70 px-1 font-mono text-[10px] font-semibold text-gray-900 min-h-[16px]">
+                  {farmer.nin || ''}
+                </span>
+                <span className="shrink-0 font-medium">Délivrée le :</span>
+                <span className="w-[120px] border-b border-dotted border-black/70 px-1 font-semibold text-gray-900 min-h-[16px]">
+                  {farmer.issue_date ? displayDate(farmer.issue_date) : ''}
+                </span>
+              </div>
+
+              <div className="flex items-end gap-2 w-full">
+                <span className="shrink-0 font-medium">Adresse :</span>
+                <span className="flex-1 border-b border-dotted border-black/70 px-1 font-semibold text-gray-900 min-h-[16px]">
+                  {farmer.address || ''}
+                </span>
+                <span className="shrink-0 font-medium">commune :</span>
+                <span className="w-[200px] border-b border-dotted border-black/70 px-1 font-semibold text-gray-900 min-h-[16px]">
+                  {farmer.commune || ''}
+                </span>
+              </div>
+
+              <div className="flex items-end gap-2 w-full">
+                <span className="shrink-0 font-medium">Daïra :</span>
+                <span className="w-[140px] border-b border-dotted border-black/70 px-1 font-semibold text-gray-900 min-h-[16px]">
+                  {farmer.daira || ''}
+                </span>
+                <span className="shrink-0 font-medium">wilaya :</span>
+                <span className="w-[140px] border-b border-dotted border-black/70 px-1 font-semibold text-gray-900 min-h-[16px]">
+                  {farmer.wilaya || ''}
+                </span>
+                <span className="shrink-0 font-medium">Tel :</span>
+                <span className="w-[130px] border-b border-dotted border-black/70 px-1 font-semibold text-gray-900 min-h-[16px]">
+                  {farmer.phone || ''}
+                </span>
+                <span className="shrink-0 font-medium">Fax :</span>
+                <span className="w-[100px] border-b border-dotted border-black/70 px-1 font-semibold text-gray-900 min-h-[16px]">
+                  {farmer.fax || ''}
+                </span>
+              </div>
+
+            </div>
+          </div>
+
+          {/* 2- Raison sociale / exploitation */}
+          <div className="mt-6">
+            <div className="space-y-3.5 text-[11px]">
+              
+              <div className="flex items-end gap-2 w-full">
+                <span className="shrink-0 font-bold">2- Raison sociale :</span>
+                <span className="flex-1 border-b border-dotted border-black/70 px-1 font-semibold text-gray-900 min-h-[16px]">
+                  {farmer.raison_sociale || ''}
+                </span>
+              </div>
+
+              <div className="flex items-end gap-2 w-full">
+                <span className="shrink-0 font-medium">Adresse de l'exploitation :</span>
+                <span className="flex-1 border-b border-dotted border-black/70 px-1 font-semibold text-gray-900 min-h-[16px]">
+                  {farmer.address || ''}
+                </span>
+              </div>
+
+              <div className="flex items-end gap-2 w-full">
+                <span className="shrink-0 font-medium">Commune :</span>
+                <span className="flex-1 border-b border-dotted border-black/70 px-1 font-semibold text-gray-900 min-h-[16px]">
+                  {farmer.commune || ''}
+                </span>
+                <span className="shrink-0 font-medium">Daïra :</span>
+                <span className="w-[160px] border-b border-dotted border-black/70 px-1 font-semibold text-gray-900 min-h-[16px]">
+                  {farmer.daira || ''}
+                </span>
+                <span className="shrink-0 font-medium">wilaya :</span>
+                <span className="w-[160px] border-b border-dotted border-black/70 px-1 font-semibold text-gray-900 min-h-[16px]">
+                  {farmer.wilaya || ''}
+                </span>
+              </div>
+
+              <div className="flex items-end gap-2 w-full">
+                <span className="shrink-0 font-medium">Tel :</span>
+                <span className="w-[220px] border-b border-dotted border-black/70 px-1 font-semibold text-gray-900 min-h-[16px]">
+                  {farmer.phone || ''}
+                </span>
+                <span className="shrink-0 font-medium">Fax :</span>
+                <span className="flex-1 border-b border-dotted border-black/70 px-1 font-semibold text-gray-900 min-h-[16px]">
+                  {farmer.fax || ''}
+                </span>
+              </div>
+
+            </div>
+          </div>
+
+          {/* 3- Références permis de travail */}
+          <div className="mt-6">
+            <h2 className="text-[11.5px] font-bold mb-2">3-Références du permis de travail ou du contrat ( pour les étrangers ) :</h2>
+            <div className="space-y-3.5 text-[11px]">
+              
+              <div className="flex items-end gap-2 w-full">
+                <span className="shrink-0 font-medium">N° :</span>
+                <span className="flex-1 border-b border-dotted border-black/70 px-1 font-semibold text-gray-900 min-h-[16px]">
+                  {farmer.work_permit_ref || ''}
+                </span>
+              </div>
+
+              <div className="flex items-end gap-2 w-full">
+                <span className="shrink-0 font-medium">Date et lieu de délivrance :</span>
+                <span className="flex-1 border-b border-dotted border-black/70 px-1 min-h-[16px]"></span>
+              </div>
+
+            </div>
+          </div>
+
+          {/* 4- Informations produits */}
+          <div className="mt-6">
+            <h2 className="text-[11.5px] font-bold mb-2">4-Informations sur les produits utilisés :</h2>
+            <table className="w-full border-collapse border border-black text-center text-[10.5px]">
               <thead>
-                <tr className="bg-gray-100/70 text-center font-bold">
-                  <th className="border border-gray-400 px-2 py-1.5 w-10">N°</th>
-                  <th className="border border-gray-400 px-2 py-1.5 w-[160px]">
-                    <div>Culture</div>
-                    <div className="font-arabic text-[10px] font-normal mt-0.5 text-gray-600">(الصنف)</div>
-                  </th>
-                  <th className="border border-gray-400 px-2 py-1.5 w-[110px]">
-                    <div>Superficie</div>
-                    <div className="font-arabic text-[10px] font-normal mt-0.5 text-gray-600">(المساحة)</div>
-                  </th>
-                  <th className="border border-gray-400 px-2 py-1.5">
-                    <div>Nature du Produit</div>
-                    <div className="font-arabic text-[10px] font-normal mt-0.5 text-gray-600">(نوع المنتج)</div>
-                  </th>
-                  <th className="border border-gray-400 px-2 py-1.5 w-[80px]">Qté</th>
-                  <th className="border border-gray-400 px-2 py-1.5 w-[80px]">Unité</th>
-                  <th className="border border-gray-400 px-2 py-1.5 w-[100px]">Période</th>
+                <tr className="bg-gray-50 font-bold h-8">
+                  <th className="border border-black px-2 py-1">Culture</th>
+                  <th className="border border-black px-2 py-1 w-[120px]">Superficie</th>
+                  <th className="border border-black px-2 py-1">Nature du produit</th>
+                  <th className="border border-black px-2 py-1 w-[180px]">Quantités demandées en Kg ou en litre</th>
+                  <th className="border border-black px-2 py-1 w-[150px]">Période d'utilisation</th>
                 </tr>
               </thead>
               <tbody>
                 {rows.map((c, i) => (
                   <tr key={i} className="text-center h-8 font-medium">
-                    <td className="border border-gray-400 px-2 py-1">{i + 1}</td>
-                    <td className="border border-gray-400 px-2 py-1 text-left">{cropFr(c.crop_category) || '\u00A0'}</td>
-                    <td className="border border-gray-400 px-2 py-1">{c.superficie || '\u00A0'}</td>
-                    <td className="border border-gray-400 px-2 py-1 text-left uppercase">{c.product_nature || '\u00A0'}</td>
-                    <td className="border border-gray-400 px-2 py-1">{c.quantity_requested || '\u00A0'}</td>
-                    <td className="border border-gray-400 px-2 py-1">{c.quantity_unit || '\u00A0'}</td>
-                    <td className="border border-gray-400 px-2 py-1">{c.period || '\u00A0'}</td>
+                    <td className="border border-black px-2 py-1 text-left">{cropFr(c.crop_category) || '\u00A0'}</td>
+                    <td className="border border-black px-2 py-1">{c.superficie || '\u00A0'}</td>
+                    <td className="border border-black px-2 py-1 text-left uppercase">{c.product_nature || '\u00A0'}</td>
+                    <td className="border border-black px-2 py-1 font-bold">
+                      {c.quantity_requested ? `${c.quantity_requested} ${c.quantity_unit || ''}` : '\u00A0'}
+                    </td>
+                    <td className="border border-black px-2 py-1">{c.period || '\u00A0'}</td>
                   </tr>
                 ))}
                 {/* Pad with empty rows to have at least 3 rows visually */}
-                {Array.from({ length: Math.max(0, 3 - rows.length) }).map((_, idx) => {
-                  const rowNum = rows.length + idx + 1;
-                  return (
-                    <tr key={`empty-${idx}`} className="h-8 text-center text-gray-400">
-                      <td className="border border-gray-400 px-2 py-1">{rowNum}</td>
-                      <td className="border border-gray-400 px-2 py-1"></td>
-                      <td className="border border-gray-400 px-2 py-1"></td>
-                      <td className="border border-gray-400 px-2 py-1"></td>
-                      <td className="border border-gray-400 px-2 py-1"></td>
-                      <td className="border border-gray-400 px-2 py-1"></td>
-                      <td className="border border-gray-400 px-2 py-1"></td>
-                    </tr>
-                  );
-                })}
+                {Array.from({ length: Math.max(0, 3 - rows.length) }).map((_, idx) => (
+                  <tr key={`empty-${idx}`} className="h-8 text-center text-gray-400">
+                    <td className="border border-black px-2 py-1"></td>
+                    <td className="border border-black px-2 py-1"></td>
+                    <td className="border border-black px-2 py-1"></td>
+                    <td className="border border-black px-2 py-1"></td>
+                    <td className="border border-black px-2 py-1"></td>
+                  </tr>
+                ))}
               </tbody>
             </table>
           </div>
 
-          {/* MENTIONS OBLIGATOIRES */}
-          <div className="mt-8 border-t border-gray-400 pt-4">
-            <h3 className="text-[11px] font-bold uppercase tracking-wider text-gray-800 mb-1">
-              MENTIONS OBLIGATOIRES
-            </h3>
-            <p className="text-[9.5px] text-gray-600 leading-normal">
-              L'agriculteur bénéficie d'une subvention de l'État à hauteur de 50% de la valeur des intrants agricoles demandés.
-            </p>
-          </div>
-
-          {/* SIGNATURES */}
-          <div className="mt-12">
-            <div className="grid grid-cols-2 gap-8 text-[11px]">
-              <div className="text-center h-28 flex flex-col justify-between">
-                <div>
-                  <p className="font-bold">Signature de l'Agriculteur</p>
-                  <p className="text-gray-800 font-bold mt-1.5">{farmer.last_name || farmer.first_name ? `${farmer.last_name} ${farmer.first_name}`.trim() : ''}</p>
-                </div>
-                <div className="mt-auto border-t border-dashed border-gray-400 w-3/4 mx-auto pt-1 text-[9px] text-gray-400">
-                  Signature de l'Agriculteur
-                </div>
-              </div>
-              <div className="text-center h-28 flex flex-col justify-between">
-                <p className="font-bold">Cachet et Signature du Service</p>
-                <div className="mt-auto border-t border-dashed border-gray-400 w-3/4 mx-auto pt-1 text-[9px] text-gray-400">
-                  [Office Stamp & Signature]
-                </div>
-              </div>
+          {/* 5- Mesures obligatoires & Signatures */}
+          <div className="mt-6 text-[10px] leading-relaxed text-gray-800">
+            <h3 className="font-bold text-[11px] mb-1">5- Mesures obligatoires à prendre par l'agriculteur :</h3>
+            <p>1-conserver en lieu sur ( sécurisé ) les produits achetés ;</p>
+            <p>2-déclarer périodiquement les produits détenus et leur niveau de consommation ;</p>
+            <p>3-disposer de pièces commerciales règlementaires (facture, bon de livraison, etc) justifiant cette acquisition</p>
+            
+            <p className="mt-2 font-bold text-[11px]">Je soussigné :</p>
+            <div className="flex items-end gap-2 w-full mt-1">
+              <span className="shrink-0 font-medium">Nom :</span>
+              <span className="flex-1 border-b border-dotted border-black/70 px-1 font-semibold text-gray-900 min-h-[16px]">
+                {farmer.last_name || ''}
+              </span>
+              <span className="shrink-0 font-medium">Prénom :</span>
+              <span className="flex-1 border-b border-dotted border-black/70 px-1 font-semibold text-gray-900 min-h-[16px]">
+                {farmer.first_name || ''}
+              </span>
             </div>
             
-            <div className="mt-8 text-center">
-              <p className="font-bold text-[11px]">Visa du Visionnaire de Permis</p>
-              <div className="mt-14 border-b border-dashed border-gray-400 w-1/3 mx-auto" />
+            <p className="mt-2 font-semibold text-gray-900 text-[10.5px]">
+              Certifie sur l'honneur que les informations portées sur la présente demande sont exactes et que les quantités seront utilisées totalement pour les besoins des cultures déclarées.
+            </p>
+
+            <div className="text-right mt-6 flex justify-end gap-2 text-[11px]">
+              <span>Fait à</span>
+              <span className="w-[150px] border-b border-dotted border-black"></span>
+              <span>le</span>
+              <span className="w-[150px] border-b border-dotted border-black"></span>
+            </div>
+
+            <div className="flex justify-between items-start mt-8 text-[11px] font-bold">
+              <div className="text-left w-1/2">
+                <p>Visa du subdivisionnaire/VISA.APC</p>
+              </div>
+              <div className="text-right w-1/2 pr-12">
+                <p>Signature de l'agriculteur</p>
+              </div>
             </div>
           </div>
 

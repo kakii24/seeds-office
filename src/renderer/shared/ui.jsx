@@ -99,3 +99,45 @@ export function EmptyState({ icon, message, hint }) {
     </div>
   );
 }
+
+/** Beautiful React-based confirmation modal to replace native window.confirm */
+export function ConfirmModal({ open, onClose, onConfirm, title = 'Confirmation', message, confirmText = 'Confirmer', cancelText = 'Annuler' }) {
+  useEffect(() => {
+    if (!open) return undefined;
+    const onKey = (e) => { if (e.key === 'Escape') onClose(); };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [open, onClose]);
+
+  if (!open) return null;
+
+  return (
+    <div className="no-print fixed inset-0 z-50 flex items-center justify-center bg-black/55 p-4 animate-fade-in">
+      <div
+        className="w-full max-w-md animate-modal-in overflow-hidden rounded-2xl bg-white shadow-modal"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <div className="bg-gradient-to-r from-red-800 to-red-600 px-6 py-4 text-white">
+          <h2 className="text-base font-bold leading-tight">{title}</h2>
+        </div>
+        <div className="px-6 py-5 text-sm text-gray-700">
+          <p>{message}</p>
+        </div>
+        <div className="flex items-center justify-end gap-3 border-t border-gray-100 bg-gray-50 px-6 py-4">
+          <button onClick={onClose} className="btn-neutral">
+            {cancelText}
+          </button>
+          <button
+            onClick={() => {
+              onConfirm();
+              onClose();
+            }}
+            className="btn bg-red-600 text-white hover:bg-red-700 active:scale-[0.98]"
+          >
+            {confirmText}
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
