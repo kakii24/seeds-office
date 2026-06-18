@@ -35,8 +35,12 @@ function createMainWindow() {
 
   if (isDev) {
     mainWindow.loadURL(`${DEV_SERVER}/index.html`);
+    mainWindow.webContents.once('did-finish-load', () => {
+      mainWindow.webContents.openDevTools();
+    });
   } else {
-    mainWindow.loadFile(path.join(__dirname, '../../dist/renderer/index.html'));
+    const prodPath = path.join(__dirname, '../../dist/renderer/index.html');
+    mainWindow.loadFile(prodPath);
   }
 
   mainWindow.on('closed', () => { mainWindow = null; });
@@ -114,7 +118,8 @@ async function exportDeliveriesXlsx(event, farmerId) {
     'N°': i + 1,
     'Agriculteur (الفلاح)': `${r.last_name} ${r.first_name}`.trim(),
     'NIN (رقم التعريف الوطني)': r.nin || '',
-    'Culture (الصنف)': frenchCrop(r.crop_category),
+    'Culture (المحصول)': frenchCrop(r.crop_category),
+    'Type (النوع)': r.type || '',
     'Produit (نوع المنتج)': r.product_nature || '',
     'Quantité demandée (الكمية المطلوبة)': r.quantity_requested || '',
     'Unité (الوحدة)': r.quantity_unit || 'Kg',
@@ -128,7 +133,8 @@ async function exportDeliveriesXlsx(event, farmerId) {
   }));
 
   const headers = [
-    'N°', 'Agriculteur (الفلاح)', 'NIN (رقم التعريف الوطني)', 'Culture (الصنف)',
+    'N°', 'Agriculteur (الفلاح)', 'NIN (رقم التعريف الوطني)', 'Culture (المحصول)',
+    'Type (النوع)',
     'Produit (نوع المنتج)', 'Quantité demandée (الكمية المطلوبة)', 'Unité (الوحدة)',
     'Période (فترة الاستخدام)', 'Opérateur (المزود)', 'Quantité livrée (الكمية المسلمة)',
     'Montant (DA) (المبلغ)', 'N° Facture (رقم الفاتورة)', 'Date de livraison (التاريخ)',
@@ -137,7 +143,7 @@ async function exportDeliveriesXlsx(event, farmerId) {
 
   const ws = XLSX.utils.json_to_sheet(data, { header: headers });
   ws['!cols'] = [
-    { wch: 5 }, { wch: 24 }, { wch: 22 }, { wch: 16 }, { wch: 18 }, { wch: 20 },
+    { wch: 5 }, { wch: 24 }, { wch: 22 }, { wch: 16 }, { wch: 16 }, { wch: 18 }, { wch: 20 },
     { wch: 12 }, { wch: 16 }, { wch: 16 }, { wch: 16 }, { wch: 14 }, { wch: 14 }, { wch: 16 }, { wch: 12 }
   ];
 

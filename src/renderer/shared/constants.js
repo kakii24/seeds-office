@@ -4,7 +4,7 @@
 // `fr` is the French label shown to users; `ar` is the small Arabic hint.
 export const CROP_CATEGORIES = [
   { value: 'Forage', fr: 'Forage', ar: 'العلفية' },
-  { value: 'Céréales', fr: 'Céréales', ar: 'الحبوب' },
+  { value: 'Cereal', fr: 'Céréales', ar: 'الحبوب' },
   { value: 'Maraîchage', fr: 'Maraîchage', ar: 'الخضروات' },
   { value: 'Arboriculture', fr: 'Arboriculture', ar: 'الأشجار المثمرة' },
   { value: 'Autre', fr: 'Autre', ar: 'أخرى' }
@@ -15,12 +15,28 @@ const CROP_BY_VALUE = CROP_CATEGORIES.reduce((acc, c) => {
   return acc;
 }, {});
 
+// Support mapping for legacy DB data to preserve correct labels
+CROP_BY_VALUE['Céréales'] = { value: 'Cereal', fr: 'Céréales', ar: 'الحبوب' };
+CROP_BY_VALUE['Cereal'] = { value: 'Cereal', fr: 'Céréales', ar: 'الحبوب' };
+
 export function cropFr(value) {
   return CROP_BY_VALUE[value]?.fr || value || '';
 }
 
 export function cropAr(value) {
   return CROP_BY_VALUE[value]?.ar || '';
+}
+
+export function formatDateInput(value) {
+  if (!value) return '';
+  const digits = value.replace(/\D/g, '').slice(0, 8);
+  if (digits.length <= 2) {
+    return digits;
+  }
+  if (digits.length <= 4) {
+    return `${digits.slice(0, 2)}/${digits.slice(2)}`;
+  }
+  return `${digits.slice(0, 2)}/${digits.slice(2, 4)}/${digits.slice(4)}`;
 }
 
 // Format a numeric amount with thousands separators and the " DA" suffix.

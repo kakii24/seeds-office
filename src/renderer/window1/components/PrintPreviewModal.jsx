@@ -12,7 +12,7 @@ export default function PrintPreviewModal({ open, onClose, farmer, crops, onPrin
   if (!open) return null;
 
   const rows = (crops || []).filter(
-    (c) => c.crop_category || c.superficie || c.product_nature || c.quantity_requested || c.period
+    (c) => c.crop_category || c.type || c.superficie || c.product_nature || c.quantity_requested || c.period
   );
 
   return (
@@ -61,7 +61,7 @@ export default function PrintPreviewModal({ open, onClose, farmer, crops, onPrin
             <div className="flex items-end flex-1 min-w-[280px]">
               <span className="font-bold shrink-0">Subdivision de l'Agriculture :</span>
               <span className="ml-1 border-b border-dotted border-black inline-block flex-1 px-1 font-bold text-[12px]">
-                OUED RHIOU
+                {farmer.subdivision || ''}
               </span>
             </div>
             <div className="border border-black px-3 py-1 font-bold text-[10px] tracking-wide uppercase bg-gray-50 shrink-0 ml-4">
@@ -227,16 +227,18 @@ export default function PrintPreviewModal({ open, onClose, farmer, crops, onPrin
               <thead>
                 <tr className="bg-gray-50 font-bold h-8">
                   <th className="border border-black px-2 py-1">Culture</th>
-                  <th className="border border-black px-2 py-1 w-[120px]">Superficie</th>
+                  <th className="border border-black px-2 py-1">Type</th>
+                  <th className="border border-black px-2 py-1 w-[100px]">Superficie</th>
                   <th className="border border-black px-2 py-1">Nature du produit</th>
-                  <th className="border border-black px-2 py-1 w-[180px]">Quantités demandées en Kg ou en litre</th>
-                  <th className="border border-black px-2 py-1 w-[150px]">Période d'utilisation</th>
+                  <th className="border border-black px-2 py-1 w-[160px]">Quantités demandées en Kg ou en litre</th>
+                  <th className="border border-black px-2 py-1 w-[130px]">Période d'utilisation</th>
                 </tr>
               </thead>
               <tbody>
                 {rows.map((c, i) => (
                   <tr key={i} className="text-center h-8 font-medium">
                     <td className="border border-black px-2 py-1 text-left">{cropFr(c.crop_category) || '\u00A0'}</td>
+                    <td className="border border-black px-2 py-1 text-left">{c.type || '\u00A0'}</td>
                     <td className="border border-black px-2 py-1">{c.superficie || '\u00A0'}</td>
                     <td className="border border-black px-2 py-1 text-left uppercase">{c.product_nature || '\u00A0'}</td>
                     <td className="border border-black px-2 py-1 font-bold">
@@ -248,6 +250,7 @@ export default function PrintPreviewModal({ open, onClose, farmer, crops, onPrin
                 {/* Pad with empty rows to have at least 3 rows visually */}
                 {Array.from({ length: Math.max(0, 3 - rows.length) }).map((_, idx) => (
                   <tr key={`empty-${idx}`} className="h-8 text-center text-gray-400">
+                    <td className="border border-black px-2 py-1"></td>
                     <td className="border border-black px-2 py-1"></td>
                     <td className="border border-black px-2 py-1"></td>
                     <td className="border border-black px-2 py-1"></td>

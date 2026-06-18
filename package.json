@@ -10,7 +10,7 @@
     "dev:electron": "wait-on tcp:5173 && cross-env NODE_ENV=development electron .",
     "dev": "concurrently -k -n VITE,ELECTRON -c cyan,green \"npm:dev:vite\" \"npm:dev:electron\"",
     "build:renderer": "vite build",
-    "build": "vite build && electron-builder --win nsis",
+    "build": "vite build && electron-builder --win portable",
     "rebuild": "electron-rebuild -f -w better-sqlite3",
     "start": "cross-env NODE_ENV=production electron .",
     "postinstall": "electron-builder install-app-deps"
@@ -51,19 +51,14 @@
     "win": {
       "target": [
         {
-          "target": "nsis",
+          "target": "portable",
           "arch": ["x64"]
         }
       ],
-      "icon": "build/icon.ico"
+      "icon": "build/icon.png"
     },
-    "nsis": {
-      "oneClick": false,
-      "perMachine": false,
-      "allowToChangeInstallationDirectory": true,
-      "createDesktopShortcut": true,
-      "createStartMenuShortcut": true,
-      "shortcutName": "Seeds Office"
+    "portable": {
+      "artifactName": "Seeds-Office-Setup.exe"
     }
   }
 }

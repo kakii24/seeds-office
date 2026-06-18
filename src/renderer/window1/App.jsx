@@ -10,10 +10,10 @@ import { fullName, displayDate } from '../shared/constants.js';
 const emptyFarmer = () => ({
   id: null, last_name: '', first_name: '', raison_sociale: '', dob: '', place_of_birth: '',
   nin: '', issue_date: '', address: '', commune: '', daira: '', wilaya: '', phone: '',
-  fax: '', work_permit_ref: ''
+  fax: '', work_permit_ref: '', subdivision: '', num_carte_nationale: ''
 });
 const emptyCrop = () => ({
-  crop_category: '', superficie: '', product_nature: '', quantity_requested: '', quantity_unit: '', period: ''
+  crop_category: '', type: '', superficie: '', product_nature: '', quantity_requested: '', quantity_unit: '', period: ''
 });
 
 export default function App() {
@@ -72,23 +72,34 @@ export default function App() {
     
     // Check missing mandatory fields
     const missing = [];
-    if (!farmer.last_name.trim()) missing.push('Nom');
-    if (!farmer.first_name.trim()) missing.push('Prénom');
-    if (!farmer.raison_sociale.trim()) missing.push('Raison Sociale');
-    if (!farmer.nin.trim()) missing.push('NIN');
+    if (!String(farmer.last_name || '').trim()) missing.push('Nom');
+    if (!String(farmer.first_name || '').trim()) missing.push('Prénom');
+    if (!String(farmer.raison_sociale || '').trim()) missing.push('Raison Sociale');
+    if (!String(farmer.nin || '').trim()) missing.push('NIN / Carte de fellah');
+
+    if (missing.length > 0) {
+      toast.warn(`Veuillez remplir les champs obligatoires suivants : ${missing.join(', ')}`);
+      return;
+    }
 
     // Check crop requests validation (each crop row must be completely filled)
     const hasInvalidCrop = crops.some(c => 
-      !c.crop_category?.trim() ||
-      !c.superficie?.trim() ||
-      !c.product_nature?.trim() ||
-      !c.quantity_requested?.trim() ||
-      !c.quantity_unit?.trim() ||
-      !c.period?.trim()
+      !String(c.crop_category || '').trim() ||
+      !String(c.type || '').trim() ||
+      !String(c.superficie || '').trim() ||
+      !String(c.product_nature || '').trim() ||
+      !String(c.quantity_requested || '').trim() ||
+      !String(c.quantity_unit || '').trim() ||
+      !String(c.period || '').trim()
     );
 
-    if (missing.length || crops.length === 0 || hasInvalidCrop || isInvalidDate(farmer.dob) || isInvalidDate(farmer.issue_date)) {
-      toast.warn('Veuillez remplir les champs obligatoires');
+    if (crops.length === 0 || hasInvalidCrop) {
+      toast.warn('Veuillez remplir toutes les informations de culture obligatoires');
+      return;
+    }
+
+    if (isInvalidDate(farmer.dob) || isInvalidDate(farmer.issue_date)) {
+      toast.warn('Le format de la date est invalide (JJ/MM/AAAA)');
       return;
     }
 

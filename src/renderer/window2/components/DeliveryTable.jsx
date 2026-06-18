@@ -6,7 +6,8 @@ const COLS = [
   '#',
   'Agriculteur (الفلاح)',
   'NIN (رقم التعريف الوطني)',
-  'Culture (الصنف)',
+  'Culture (المحصول)',
+  'Type (النوع)',
   'Produit (نوع المنتج)',
   'Qté demandée (الكمية المطلوبة)',
   'Unité (الوحدة)',
@@ -116,6 +117,7 @@ export default function DeliveryTable({ rows, onEdit, onDelete }) {
                   {cropFr(r.crop_category) || '—'}
                   {cropAr(r.crop_category) && <span className="font-arabic text-xs text-gray-400"> ({cropAr(r.crop_category)})</span>}
                 </td>
+                <td className="border-b border-gray-100 px-3 py-2 text-gray-700">{r.type || '—'}</td>
                 <td className="border-b border-gray-100 px-3 py-2 text-gray-700">{r.product_nature || '—'}</td>
                 <td className="border-b border-gray-100 px-3 py-2 text-gray-700">{r.quantity_requested || '—'}</td>
                 <td className="border-b border-gray-100 px-3 py-2 text-gray-700">{r.quantity_unit || '—'}</td>

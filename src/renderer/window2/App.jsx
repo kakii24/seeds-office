@@ -7,7 +7,7 @@ import { useToast } from '../shared/Toast.jsx';
 import { ConfirmModal } from '../shared/ui.jsx';
 import { fullName } from '../shared/constants.js';
 
-const emptyFilters = () => ({ searchName: '', searchNIN: '', searchOperator: '', culture: '', status: '', dateFrom: '', dateTo: '' });
+const emptyFilters = () => ({ searchName: '', searchNIN: '', searchOperator: '', culture: '', status: 'Tout', dateFrom: '', dateTo: '' });
 
 function parseAmount(v) {
   if (v === null || v === undefined || v === '') return 0;
@@ -52,14 +52,19 @@ export default function App() {
       }
       if (qNin) {
         const hay = (r.nin || '').toLowerCase();
-        if (!hay.includes(qNin)) return false;
+        if (!hay.includes(qNin) && qNin !== '#recherche par nin carte fallah') return false;
       }
       if (qOp) {
         const hay = (r.operator || '').toLowerCase();
         if (!hay.includes(qOp)) return false;
       }
-      if (filters.culture && r.crop_category !== filters.culture) return false;
-      if (filters.status && (r.service_done || 'Non') !== filters.status) return false;
+      if (filters.culture) {
+        const norm = (c) => (c === 'Céréales' || c === 'Cereal') ? 'Cereal' : c;
+        if (norm(r.crop_category) !== norm(filters.culture)) return false;
+      }
+      if (filters.status && filters.status !== 'Tout') {
+        if ((r.service_done || 'Non') !== filters.status) return false;
+      }
       if (filters.dateFrom) {
         if (!r.delivery_date || r.delivery_date < filters.dateFrom) return false;
       }

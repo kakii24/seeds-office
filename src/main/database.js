@@ -27,6 +27,8 @@ CREATE TABLE IF NOT EXISTS farmers (
   raison_sociale TEXT NOT NULL DEFAULT '',
   fax TEXT DEFAULT '',
   work_permit_ref TEXT DEFAULT '',
+  subdivision TEXT DEFAULT '',
+  num_carte_nationale TEXT DEFAULT '',
   created_at TEXT DEFAULT (datetime('now'))
 );
 
@@ -34,6 +36,7 @@ CREATE TABLE IF NOT EXISTS crop_requests (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
   farmer_id INTEGER NOT NULL REFERENCES farmers(id) ON DELETE CASCADE,
   crop_category TEXT,
+  type TEXT DEFAULT '',
   superficie TEXT,
   product_nature TEXT,
   quantity_requested TEXT,
@@ -82,7 +85,22 @@ function initDatabase(dbPath) {
     // Column already exists
   }
   try {
+    db.exec(`ALTER TABLE farmers ADD COLUMN subdivision TEXT DEFAULT ''`);
+  } catch (e) {
+    // Column already exists
+  }
+  try {
+    db.exec(`ALTER TABLE farmers ADD COLUMN num_carte_nationale TEXT DEFAULT ''`);
+  } catch (e) {
+    // Column already exists
+  }
+  try {
     db.exec(`ALTER TABLE crop_requests ADD COLUMN quantity_unit TEXT DEFAULT 'Kg'`);
+  } catch (e) {
+    // Column already exists
+  }
+  try {
+    db.exec(`ALTER TABLE crop_requests ADD COLUMN type TEXT DEFAULT ''`);
   } catch (e) {
     // Column already exists
   }
@@ -101,11 +119,11 @@ function getDb() {
 
 const FARMER_FIELDS = [
   'last_name', 'first_name', 'dob', 'place_of_birth', 'nin', 'issue_date',
-  'address', 'commune', 'daira', 'wilaya', 'phone', 'raison_sociale', 'fax', 'work_permit_ref'
+  'address', 'commune', 'daira', 'wilaya', 'phone', 'raison_sociale', 'fax', 'work_permit_ref', 'subdivision', 'num_carte_nationale'
 ];
 
 const CROP_FIELDS = [
-  'crop_category', 'superficie', 'product_nature', 'quantity_requested', 'quantity_unit', 'period'
+  'crop_category', 'type', 'superficie', 'product_nature', 'quantity_requested', 'quantity_unit', 'period'
 ];
 
 /**
@@ -119,13 +137,13 @@ function saveFarmer({ farmer, crops }) {
 
   const insertCrop = d.prepare(`
     INSERT INTO crop_requests
-      (farmer_id, crop_category, superficie, product_nature, quantity_requested, quantity_unit, period)
+      (farmer_id, crop_category, type, superficie, product_nature, quantity_requested, quantity_unit, period)
     VALUES
-      (@farmer_id, @crop_category, @superficie, @product_nature, @quantity_requested, @quantity_unit, @period)
+      (@farmer_id, @crop_category, @type, @superficie, @product_nature, @quantity_requested, @quantity_unit, @period)
   `);
   const updateCrop = d.prepare(`
     UPDATE crop_requests SET
-      crop_category = @crop_category, superficie = @superficie,
+      crop_category = @crop_category, type = @type, superficie = @superficie,
       product_nature = @product_nature, quantity_requested = @quantity_requested,
       quantity_unit = @quantity_unit, period = @period
     WHERE id = @id AND farmer_id = @farmer_id
@@ -135,6 +153,7 @@ function saveFarmer({ farmer, crops }) {
   const cropValues = (crop, farmerId) => ({
     farmer_id: farmerId,
     crop_category: str(crop.crop_category),
+    type: str(crop.type),
     superficie: str(crop.superficie),
     product_nature: str(crop.product_nature).toUpperCase(), // Nature du Produit saved as uppercase
     quantity_requested: str(crop.quantity_requested),
@@ -152,7 +171,8 @@ function saveFarmer({ farmer, crops }) {
           place_of_birth = @place_of_birth, nin = @nin, issue_date = @issue_date,
           address = @address, commune = @commune, daira = @daira,
           wilaya = @wilaya, phone = @phone, raison_sociale = @raison_sociale,
-          fax = @fax, work_permit_ref = @work_permit_ref
+          fax = @fax, work_permit_ref = @work_permit_ref, subdivision = @subdivision,
+          num_carte_nationale = @num_carte_nationale
         WHERE id = @id
       `).run(normaliseFarmer(farmer, true));
 
@@ -181,10 +201,10 @@ function saveFarmer({ farmer, crops }) {
       const info = d.prepare(`
         INSERT INTO farmers
           (last_name, first_name, dob, place_of_birth, nin, issue_date,
-           address, commune, daira, wilaya, phone, raison_sociale, fax, work_permit_ref)
+           address, commune, daira, wilaya, phone, raison_sociale, fax, work_permit_ref, subdivision, num_carte_nationale)
         VALUES
           (@last_name, @first_name, @dob, @place_of_birth, @nin, @issue_date,
-           @address, @commune, @daira, @wilaya, @phone, @raison_sociale, @fax, @work_permit_ref)
+           @address, @commune, @daira, @wilaya, @phone, @raison_sociale, @fax, @work_permit_ref, @subdivision, @num_carte_nationale)
       `).run(normaliseFarmer(farmer, false));
       farmerId = info.lastInsertRowid;
 
@@ -257,6 +277,7 @@ const DELIVERY_SELECT = `
     f.first_name          AS first_name,
     f.nin                 AS nin,
     cr.crop_category      AS crop_category,
+    cr.type               AS type,
     cr.superficie         AS superficie,
     cr.product_nature     AS product_nature,
     cr.quantity_requested AS quantity_requested,
@@ -353,7 +374,7 @@ function normaliseFarmer(farmer, withId) {
 
 function isEmptyCrop(crop) {
   // Check primary crop fields to decide if row is empty (ignore quantity_unit default value 'Kg' / 'L')
-  return ['crop_category', 'superficie', 'product_nature', 'quantity_requested', 'period'].every(
+  return ['crop_category', 'type', 'superficie', 'product_nature', 'quantity_requested', 'period'].every(
     (f) => !crop[f] || String(crop[f]).trim() === ''
   );
 }

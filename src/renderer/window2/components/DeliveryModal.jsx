@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useRef, useMemo } from 'react';
 import { Modal, Field, FieldLabel } from '../../shared/ui.jsx';
-import { cropFr, cropAr, displayDate, todayDMY, fullName } from '../../shared/constants.js';
+import { cropFr, cropAr, displayDate, todayDMY, fullName, formatDateInput } from '../../shared/constants.js';
 import { useToast } from '../../shared/Toast.jsx';
 
 const ACCENT = 'focus:border-olive-700 focus:ring-olive-700/25';
@@ -15,19 +15,28 @@ function FarmerInfoCard({ farmer }) {
   const items = [
     ['Nom & Prénom', fullName(farmer)],
     ['Raison Sociale', farmer.raison_sociale || '—'],
-    ['NIN', farmer.nin],
-    ['Commune / Daïra / Wilaya', `${farmer.commune || '—'} / ${farmer.daira || '—'} / ${farmer.wilaya || '—'}`],
-    ['Téléphone / Fax', `${farmer.phone || '—'} / ${farmer.fax || '—'}`],
-    ['Permis de Travail', farmer.work_permit_ref || '—']
+    ['NIN / Immatriculation', farmer.nin || '—'],
+    ['N° Carte Nationale', farmer.num_carte_nationale || '—'],
+    ['Date d\'émission', farmer.issue_date || '—'],
+    ['Commune', farmer.commune || '—'],
+    ['Daïra', farmer.daira || '—'],
+    ['Wilaya', farmer.wilaya || '—'],
+    ['Subdivision', farmer.subdivision || '—'],
+    ['Adresse', farmer.address || '—'],
+    ['Téléphone', farmer.phone || '—'],
+    ['Fax', farmer.fax || '—'],
+    ['Permis de Travail', farmer.work_permit_ref || '—'],
   ];
   return (
-    <div className="rounded-xl border border-olive-700/20 bg-olive-700/5 p-4 mb-2">
-      <p className="mb-2 text-xs font-bold uppercase tracking-wide text-olive-700">Informations de l'agriculteur</p>
-      <div className="grid grid-cols-2 gap-x-4 gap-y-1.5 text-xs sm:grid-cols-3">
+    <div className="rounded-xl border border-olive-700/30 bg-olive-700/5 px-6 py-5 mb-2">
+      <p className="mb-4 text-xs font-bold uppercase tracking-widest text-olive-700">
+        Informations de l'agriculteur
+      </p>
+      <div className="grid grid-cols-2 gap-x-8 gap-y-3 text-sm sm:grid-cols-3 lg:grid-cols-4">
         {items.map(([k, v]) => (
-          <div key={k}>
-            <p className="text-[10px] font-medium text-gray-500">{k}</p>
-            <p className="font-semibold text-gray-800">{v}</p>
+          <div key={k} className="flex flex-col gap-0.5">
+            <p className="text-[10px] font-semibold text-gray-400 uppercase tracking-wider">{k}</p>
+            <p className="text-sm font-semibold text-gray-800 break-words leading-snug">{v}</p>
           </div>
         ))}
       </div>
@@ -39,19 +48,20 @@ function InfoCard({ crop }) {
   if (!crop) return null;
   const items = [
     ['Culture', `${cropFr(crop.crop_category) || '—'}${cropAr(crop.crop_category) ? ` (${cropAr(crop.crop_category)})` : ''}`],
+    ['Type', crop.type || '—'],
     ['Superficie / ha', crop.superficie || '—'],
     ['Nature du produit', crop.product_nature || '—'],
     ['Quantité demandée', `${crop.quantity_requested || '—'} ${crop.quantity_unit || ''}`],
     ["Période d'utilisation", crop.period || '—']
   ];
   return (
-    <div className="rounded-xl border border-olive-700/20 bg-olive-700/5 p-4">
-      <p className="mb-2 text-xs font-bold uppercase tracking-wide text-olive-700">Détails de la demande</p>
-      <div className="grid grid-cols-2 gap-x-4 gap-y-1.5 text-xs sm:grid-cols-3">
+    <div className="rounded-xl border border-olive-700/20 bg-olive-700/5 p-5">
+      <p className="mb-3 text-xs font-bold uppercase tracking-wide text-olive-700">Détails de la demande</p>
+      <div className="grid grid-cols-1 gap-x-6 gap-y-2.5 text-xs sm:grid-cols-2 lg:grid-cols-3">
         {items.map(([k, v]) => (
-          <div key={k}>
-            <p className="text-[10px] font-medium text-gray-500">{k}</p>
-            <p className="font-semibold text-gray-800">{v}</p>
+          <div key={k} className="border-b border-olive-700/5 pb-1.5 last:border-0 sm:border-0 sm:pb-0">
+            <p className="text-[10px] font-medium text-gray-500 uppercase tracking-wider">{k}</p>
+            <p className="text-sm font-semibold text-gray-800 mt-0.5 break-all">{v}</p>
           </div>
         ))}
       </div>
@@ -184,7 +194,7 @@ export default function DeliveryModal({ open, onClose, onSaved, farmers, editing
   // The crop details shown in the info card.
   const cropInfo = isEdit && editing
     ? {
-        crop_category: editing.crop_category, superficie: editing.superficie,
+        crop_category: editing.crop_category, type: editing.type, superficie: editing.superficie,
         product_nature: editing.product_nature, quantity_requested: editing.quantity_requested,
         quantity_unit: editing.quantity_unit, period: editing.period
       }
@@ -193,18 +203,22 @@ export default function DeliveryModal({ open, onClose, onSaved, farmers, editing
   const handleSave = async () => {
     const isInvalidDate = (d) => !/^\d{2}\/\d{2}\/\d{4}$/.test(d);
 
-    if (
-      !farmerId ||
-      !cropId ||
-      !fields.operator?.trim() ||
-      !fields.quantity_delivered?.trim() ||
-      !fields.amount?.trim() ||
-      !fields.invoice_number?.trim() ||
-      !fields.delivery_date?.trim() ||
-      isInvalidDate(fields.delivery_date) ||
-      !fields.service_done
-    ) {
-      toast.warn('Veuillez remplir les champs obligatoires');
+    const missingFields = [];
+    if (!farmerId) missingFields.push("Agriculteur");
+    if (!cropId) missingFields.push("Culture");
+    if (!String(fields.operator || '').trim()) missingFields.push("Opérateur");
+    if (!String(fields.quantity_delivered || '').trim()) missingFields.push("Quantité livrée");
+    if (!String(fields.amount || '').trim()) missingFields.push("Montant après subvention");
+    if (!String(fields.invoice_number || '').trim()) missingFields.push("N° Facture");
+    if (!String(fields.delivery_date || '').trim()) missingFields.push("Date de livraison");
+
+    if (missingFields.length > 0) {
+      toast.warn(`Veuillez remplir les champs obligatoires suivants : ${missingFields.join(', ')}`);
+      return;
+    }
+
+    if (isInvalidDate(fields.delivery_date)) {
+      toast.warn('Le format de la date de livraison est invalide (JJ/MM/AAAA)');
       return;
     }
     try {
@@ -242,11 +256,14 @@ export default function DeliveryModal({ open, onClose, onSaved, farmers, editing
       title={isEdit ? 'Modifier la livraison' : 'Enregistrer une livraison'}
       headerClass="bg-gradient-to-r from-olive-900 to-olive-700"
       footer={footer}
-      maxWidth="max-w-2xl"
+      maxWidth="max-w-5xl"
     >
+      {/* Outer wrapper — no overflow so the dropdown is never clipped */}
       <div className="flex flex-col gap-4">
+
+        {/* ── Search section: overflow visible so dropdown floats freely ── */}
         {!isEdit && (
-          <div className="relative">
+          <div className="relative z-10">
             <FieldLabel fr="Rechercher l'Agriculteur (NIN ou Nom)" ar="البحث عن الفلاح بواسطة رقم التعريف أو الاسم" required />
             <input
               ref={inputRef}
@@ -268,19 +285,19 @@ export default function DeliveryModal({ open, onClose, onSaved, farmers, editing
               className={`input-base focus:ring-2 ${ACCENT}`}
             />
             {suggestions.length > 0 && (
-              <div className="absolute left-0 right-0 z-50 mt-1 max-h-60 overflow-y-auto rounded-lg border border-gray-200 bg-white shadow-lg">
+              <div className="absolute left-0 right-0 z-[100] mt-1 max-h-72 overflow-y-auto rounded-xl border border-gray-200 bg-white shadow-2xl">
                 {suggestions.map((f) => (
                   <button
                     key={f.id}
                     type="button"
                     onClick={() => handleSelectFarmer(f)}
-                    className="flex w-full flex-col px-4 py-2 text-left hover:bg-olive-700/5 transition border-b border-gray-50 last:border-0"
+                    className="flex w-full flex-col px-4 py-3 text-left hover:bg-olive-700/5 transition border-b border-gray-100 last:border-0"
                   >
                     <span className="font-bold text-gray-800 text-sm">
                       {f.last_name} {f.first_name}
                     </span>
-                    <span className="text-xs text-gray-500 font-mono">
-                      NIN: {f.nin || '—'} | Commune: {f.commune || '—'}
+                    <span className="text-xs text-gray-500 font-mono mt-0.5">
+                      NIN: {f.nin || '—'} &nbsp;|&nbsp; Commune: {f.commune || '—'} &nbsp;|&nbsp; Wilaya: {f.wilaya || '—'}
                     </span>
                   </button>
                 ))}
@@ -289,16 +306,19 @@ export default function DeliveryModal({ open, onClose, onSaved, farmers, editing
           </div>
         )}
 
+        {/* ── Rest of the form: scrollable ── */}
+        <div className="flex flex-col gap-4">
+
         {searchedFarmer && <FarmerInfoCard farmer={searchedFarmer} />}
 
         {!isEdit && farmerId && (
           <div>
-            <FieldLabel fr="Sélectionner la culture" ar="اختر الصنف" required />
+            <FieldLabel fr="Sélectionner la culture" ar="اختر المحصول" required />
             <select value={cropId} onChange={(e) => setCropId(e.target.value)} className={`input-base focus:ring-2 ${ACCENT}`}>
               <option value="">— Choisir une demande —</option>
               {cropOptions.map((c) => (
                 <option key={c.id} value={c.id}>
-                  {cropFr(c.crop_category) || 'Culture'} — {c.product_nature || 'produit'} ({c.quantity_requested} {c.quantity_unit || 'Kg'})
+                  {cropFr(c.crop_category) || 'Culture'} — {c.type || 'Type'} — {c.product_nature || 'produit'} ({c.quantity_requested} {c.quantity_unit || 'Kg'})
                 </option>
               ))}
             </select>
@@ -316,7 +336,7 @@ export default function DeliveryModal({ open, onClose, onSaved, farmers, editing
             <Field fr="Quantité livrée" ar="الكمية المسلمة" value={fields.quantity_delivered} onChange={setField('quantity_delivered')} accentClass={ACCENT} />
             <Field fr="Montant après subvention / DA" ar="المبلغ" value={fields.amount} onChange={setField('amount')} accentClass={ACCENT} />
             <Field fr="N° Facture" ar="رقم الفاتورة" value={fields.invoice_number} onChange={setField('invoice_number')} accentClass={ACCENT} />
-            <Field fr="Date de livraison" ar="التاريخ" type="text" placeholder="JJ/MM/AAAA" value={fields.delivery_date} onChange={setField('delivery_date')} accentClass={ACCENT} />
+            <Field fr="Date de livraison" ar="التاريخ" type="text" placeholder="JJ/MM/AAAA" value={fields.delivery_date} onChange={(val) => setField('delivery_date')(formatDateInput(val))} accentClass={ACCENT} />
             <div>
               <FieldLabel fr="Service fait" ar="الخدمة" />
               <select value={fields.service_done} onChange={(e) => setField('service_done')(e.target.value)} className={`input-base focus:ring-2 ${ACCENT}`}>
@@ -326,6 +346,7 @@ export default function DeliveryModal({ open, onClose, onSaved, farmers, editing
             </div>
           </div>
         )}
+      </div>
       </div>
     </Modal>
   );

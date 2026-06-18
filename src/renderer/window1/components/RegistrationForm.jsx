@@ -1,6 +1,6 @@
 import React from 'react';
 import { Field, FieldLabel, ArabicHint } from '../../shared/ui.jsx';
-import { CROP_CATEGORIES } from '../../shared/constants.js';
+import { CROP_CATEGORIES, formatDateInput } from '../../shared/constants.js';
 
 const ACCENT = 'focus:border-forest-500 focus:ring-forest-500/30';
 
@@ -39,12 +39,12 @@ export default function RegistrationForm({ farmer, onField, crops, setCrops, onN
           <Field fr="Prénom" ar="الاسم" required value={farmer.first_name} onChange={set('first_name')} accentClass={ACCENT} />
           <Field fr="Raison Sociale" ar="الاسم الاجتماعي" required value={farmer.raison_sociale} onChange={set('raison_sociale')} accentClass={ACCENT} />
           
-          <Field fr="Date de naissance" ar="تاريخ الميلاد" type="text" placeholder="JJ/MM/AAAA" value={farmer.dob} onChange={set('dob')} accentClass={ACCENT} />
+          <Field fr="Date de naissance" ar="تاريخ الميلاد" type="text" placeholder="JJ/MM/AAAA" value={farmer.dob} onChange={(val) => set('dob')(formatDateInput(val))} accentClass={ACCENT} />
           <Field fr="Lieu de naissance" ar="مكان الميلاد" value={farmer.place_of_birth} onChange={set('place_of_birth')} accentClass={ACCENT} />
           
           <Field 
-            fr="N° Carte Fellah / NIN" 
-            ar="رقم بطاقة الفلاح" 
+            fr="NIN / Immatriculation N° national carte de fellah" 
+            ar="رقم التعريف الوطني / رقم بطاقة الفلاح" 
             required 
             value={farmer.nin} 
             onChange={set('nin')} 
@@ -52,17 +52,26 @@ export default function RegistrationForm({ farmer, onField, crops, setCrops, onN
             onBlur={onNINBlur}
             onKeyDown={onNINKeyDown}
           />
+
+          <Field
+            fr="Numéro de la carte nationale"
+            ar="رقم بطاقة التعريف الوطنية"
+            value={farmer.num_carte_nationale}
+            onChange={set('num_carte_nationale')}
+            accentClass={ACCENT}
+          />
           
-          <Field fr="Date d'émission" ar="تاريخ الإصدار" type="text" placeholder="JJ/MM/AAAA" value={farmer.issue_date} onChange={set('issue_date')} accentClass={ACCENT} />
+          <Field fr="Date d'émission" ar="تاريخ الإصدار" type="text" placeholder="JJ/MM/AAAA" value={farmer.issue_date} onChange={(val) => set('issue_date')(formatDateInput(val))} accentClass={ACCENT} />
           <Field fr="Adresse" ar="العنوان" value={farmer.address} onChange={set('address')} accentClass={ACCENT} className="md:col-span-2" />
           
           <Field fr="Commune" ar="البلدية" value={farmer.commune} onChange={set('commune')} accentClass={ACCENT} />
           <Field fr="Daïra" ar="الدائرة" value={farmer.daira} onChange={set('daira')} accentClass={ACCENT} />
           <Field fr="Wilaya" ar="الولاية" value={farmer.wilaya} onChange={set('wilaya')} accentClass={ACCENT} />
           
+          <Field fr="Subdivision de l'Agriculture" ar="الفرع الفلاحي" value={farmer.subdivision} onChange={set('subdivision')} accentClass={ACCENT} />
           <Field fr="Téléphone" ar="رقم الهاتف" value={farmer.phone} onChange={set('phone')} accentClass={ACCENT} />
           <Field fr="Fax" ar="الفاكس" value={farmer.fax} onChange={set('fax')} accentClass={ACCENT} />
-          <Field fr="Référence du Permis de Travail" ar="مرجع رخصة العمل" value={farmer.work_permit_ref} onChange={set('work_permit_ref')} accentClass={ACCENT} />
+          <Field fr="Références du permis de travail ou du contrat (pour les étrangers) / N° / Date et lieu de délivrance" ar="مرجع رخصة أو عقد العمل" value={farmer.work_permit_ref} onChange={set('work_permit_ref')} accentClass={ACCENT} className="md:col-span-3" />
         </div>
       </SectionCard>
 
@@ -74,7 +83,10 @@ export default function RegistrationForm({ farmer, onField, crops, setCrops, onN
               <tr className="text-left text-xs font-semibold uppercase tracking-wide text-forest-700">
                 <th className="w-12 border-b border-gray-200 px-2 py-2">N°</th>
                 <th className="border-b border-gray-200 px-2 py-2">
-                  Culture <ArabicHint>الصنف</ArabicHint>
+                  Culture <ArabicHint>المحصول</ArabicHint>
+                </th>
+                <th className="border-b border-gray-200 px-2 py-2">
+                  Type <ArabicHint>النوع</ArabicHint>
                 </th>
                 <th className="border-b border-gray-200 px-2 py-2">
                   Superficie / ha <ArabicHint>المساحة</ArabicHint>
@@ -96,7 +108,7 @@ export default function RegistrationForm({ farmer, onField, crops, setCrops, onN
             <tbody>
               {crops.length === 0 ? (
                 <tr>
-                  <td colSpan={7} className="px-2 py-6 text-center text-sm text-gray-400">
+                  <td colSpan={8} className="px-2 py-6 text-center text-sm text-gray-400">
                     Aucune demande
                   </td>
                 </tr>
@@ -115,6 +127,15 @@ export default function RegistrationForm({ farmer, onField, crops, setCrops, onN
                           <option key={c.value} value={c.value}>{c.fr} ({c.ar})</option>
                         ))}
                       </select>
+                    </td>
+                    <td className="border-b border-gray-100 px-2 py-2">
+                      <input 
+                        value={row.type || ''} 
+                        onChange={(e) => updateCrop(i, 'type', e.target.value)} 
+                        dir="ltr" 
+                        className={`input-base focus:ring-2 ${ACCENT}`} 
+                        placeholder="Type..."
+                      />
                     </td>
                     <td className="border-b border-gray-100 px-2 py-2">
                       <input value={row.superficie} onChange={(e) => updateCrop(i, 'superficie', e.target.value)} dir="ltr" className={`input-base focus:ring-2 ${ACCENT}`} />
@@ -139,6 +160,7 @@ export default function RegistrationForm({ farmer, onField, crops, setCrops, onN
                         <option value="">— Unité —</option>
                         <option value="L">L (Litres)</option>
                         <option value="Kg">Kg (Kilogrammes)</option>
+                        <option value="Qx">Qx (Quintaux)</option>
                       </select>
                     </td>
                     <td className="border-b border-gray-100 px-2 py-2">

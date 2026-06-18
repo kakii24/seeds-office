@@ -60,12 +60,12 @@ export function Modal({ open, onClose, title, subtitle, headerClass, children, f
   return (
     <div className="no-print fixed inset-0 z-50 flex items-start justify-center overflow-y-auto bg-black/50 p-4 animate-fade-in">
       <div
-        className={`my-6 w-full ${maxWidth} animate-modal-in overflow-hidden rounded-2xl bg-white shadow-modal`}
+        className={`my-6 w-full ${maxWidth} min-h-[580px] flex flex-col animate-modal-in overflow-hidden rounded-2xl bg-white shadow-modal`}
         onClick={(e) => e.stopPropagation()}
       >
-        <div className={`flex items-start justify-between gap-4 px-6 py-4 text-white ${headerClass}`}>
+        <div className={`flex items-center justify-between gap-4 px-5 py-1.5 text-white ${headerClass}`}>
           <div>
-            <h2 className="text-lg font-bold leading-tight">{title}</h2>
+            <h2 className="text-base font-bold leading-tight">{title}</h2>
             {subtitle && <p className="mt-0.5 text-sm text-white/80">{subtitle}</p>}
           </div>
           <button
@@ -73,12 +73,12 @@ export function Modal({ open, onClose, title, subtitle, headerClass, children, f
             className="rounded-lg p-1 text-white/80 transition hover:bg-white/20 hover:text-white"
             aria-label="Fermer"
           >
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
               <path d="M18 6 6 18M6 6l12 12" />
             </svg>
           </button>
         </div>
-        <div className="max-h-[70vh] overflow-y-auto px-6 py-5">{children}</div>
+        <div className="flex-1 max-h-[80vh] overflow-y-auto px-6 py-4">{children}</div>
         {footer && (
           <div className="flex items-center justify-end gap-3 border-t border-gray-100 bg-gray-50 px-6 py-4">
             {footer}

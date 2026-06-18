@@ -23,15 +23,16 @@ export default function FilterBar({ filters, onChange, onReset }) {
       </div>
 
       <div className="min-w-[140px] flex-1">
-        <label className="mb-1 block text-xs font-semibold text-gray-500">Recherche par NIN</label>
+        <label className="mb-1 block text-xs font-semibold text-gray-500">recherche par nin carte fallah</label>
         <div className="relative">
           <svg className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
             <circle cx="11" cy="11" r="8" /><path d="m21 21-4.3-4.3" />
           </svg>
           <input
+            id="Recherche par nin carte fallah"
             value={filters.searchNIN}
             onChange={(e) => onChange({ searchNIN: e.target.value })}
-            placeholder="NIN..."
+            placeholder="recherche oar nin carte fallah"
             dir="ltr"
             className={`input-base pl-9 focus:ring-2 ${ACCENT}`}
           />
@@ -65,11 +66,11 @@ export default function FilterBar({ filters, onChange, onReset }) {
       </div>
 
       <div className="w-32">
-        <label className="mb-1 block text-xs font-semibold text-gray-500">Statut</label>
+        <label className="mb-1 block text-xs font-semibold text-gray-500">Service fait</label>
         <select value={filters.status} onChange={(e) => onChange({ status: e.target.value })} className={`input-base focus:ring-2 ${ACCENT}`}>
-          <option value="">Tous</option>
-          <option value="Oui">Effectué</option>
-          <option value="Non">En attente</option>
+          <option value="Tout">Tout</option>
+          <option value="Oui">Oui</option>
+          <option value="Non">Non</option>
         </select>
       </div>
 
