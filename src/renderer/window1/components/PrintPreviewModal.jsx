@@ -295,7 +295,7 @@ export default function PrintPreviewModal({ open, onClose, farmer, crops, onPrin
               <span className="w-[150px] border-b border-dotted border-black"></span>
             </div>
 
-            <div className="flex justify-between items-start mt-4 text-[11px] font-bold">
+            <div className="flex justify-between items-start mt-12 text-[11px] font-bold pb-24">
               <div className="text-left w-1/2">
                 <p>Visa du subdivisionnaire/VISA.APC</p>
               </div>
