@@ -74,7 +74,7 @@ export default function PrintPreviewModal({ open, onClose, farmer, crops, onPrin
             <h1 className="text-[12px] font-bold uppercase tracking-wide leading-normal">
               DEMANDE D'ACQUISITION EN MATIERES ET PRODUITS CHIMIQUES<br />
               CLASSES A USAGE AGRICOLE PAR LES AGRICULTEURS<br />
-              <span className="text-[10px] font-bold lowercase">(List du MEM)</span>
+              <span className="text-[10px] font-bold">(List du MEM)</span>
             </h1>
           </div>
 
@@ -250,8 +250,8 @@ export default function PrintPreviewModal({ open, onClose, farmer, crops, onPrin
                     <td className="border border-black px-2 py-1">{c.period || '\u00A0'}</td>
                   </tr>
                 ))}
-                {/* Pad with empty rows to have at least 2 rows visually */}
-                {Array.from({ length: Math.max(0, 2 - rows.length) }).map((_, idx) => (
+                {/* Pad with empty rows to have at least 1 row visually */}
+                {Array.from({ length: Math.max(0, 1 - rows.length) }).map((_, idx) => (
                   <tr key={`empty-${idx}`} className="h-8 text-center text-gray-400">
                     <td className="border border-black px-2 py-1"></td>
                     <td className="border border-black px-2 py-1"></td>
