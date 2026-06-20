@@ -331,13 +331,13 @@ export default function DeliveryModal({ open, onClose, onSaved, farmers, editing
 
         {(isEdit || cropId) && (
           <div className="grid grid-cols-1 gap-x-5 gap-y-4 sm:grid-cols-2">
-            <Field fr="Opérateur" ar="المزود" value={fields.operator} onChange={setField('operator')} accentClass={ACCENT} />
-            <Field fr="Quantité livrée" ar="الكمية المسلمة" value={fields.quantity_delivered} onChange={setField('quantity_delivered')} accentClass={ACCENT} />
+            <Field fr="Opérateur" ar="المزود" required value={fields.operator} onChange={setField('operator')} accentClass={ACCENT} />
+            <Field fr="Quantité livrée" ar="الكمية المسلمة" required value={fields.quantity_delivered} onChange={setField('quantity_delivered')} accentClass={ACCENT} />
             <Field fr="Montant après subvention / DA" ar="المبلغ" value={fields.amount} onChange={setField('amount')} accentClass={ACCENT} />
             <Field fr="N° Facture" ar="رقم الفاتورة" value={fields.invoice_number} onChange={setField('invoice_number')} accentClass={ACCENT} />
-            <Field fr="Date de livraison" ar="التاريخ" type="text" placeholder="JJ/MM/AAAA" value={fields.delivery_date} onChange={(val) => setField('delivery_date')(formatDateInput(val))} accentClass={ACCENT} />
+            <Field fr="Date de livraison" ar="التاريخ" required type="text" placeholder="JJ/MM/AAAA" value={fields.delivery_date} onChange={(val) => setField('delivery_date')(formatDateInput(val))} accentClass={ACCENT} />
             <div>
-              <FieldLabel fr="Service fait" ar="الخدمة" />
+              <FieldLabel fr="Service fait" ar="الخدمة" required />
               <select value={fields.service_done} onChange={(e) => setField('service_done')(e.target.value)} className={`input-base focus:ring-2 ${ACCENT}`}>
                 <option value="Non">Non (لا)</option>
                 <option value="Oui">Oui (نعم)</option>
