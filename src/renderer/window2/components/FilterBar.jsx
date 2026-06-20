@@ -1,5 +1,5 @@
 import React from 'react';
-import { CROP_CATEGORIES } from '../../shared/constants.js';
+import { CROP_CATEGORIES, formatDateInput } from '../../shared/constants.js';
 
 const ACCENT = 'focus:border-olive-700 focus:ring-olive-700/25';
 
@@ -76,12 +76,12 @@ export default function FilterBar({ filters, onChange, onReset }) {
 
       <div className="w-36">
         <label className="mb-1 block text-xs font-semibold text-gray-500">Du</label>
-        <input type="date" value={filters.dateFrom} onChange={(e) => onChange({ dateFrom: e.target.value })} dir="ltr" className={`input-base focus:ring-2 ${ACCENT}`} />
+        <input type="text" placeholder="JJ/MM/AAAA" value={filters.dateFrom} onChange={(e) => onChange({ dateFrom: formatDateInput(e.target.value) })} dir="ltr" className={`input-base focus:ring-2 ${ACCENT}`} />
       </div>
 
       <div className="w-36">
         <label className="mb-1 block text-xs font-semibold text-gray-500">Au</label>
-        <input type="date" value={filters.dateTo} onChange={(e) => onChange({ dateTo: e.target.value })} dir="ltr" className={`input-base focus:ring-2 ${ACCENT}`} />
+        <input type="text" placeholder="JJ/MM/AAAA" value={filters.dateTo} onChange={(e) => onChange({ dateTo: formatDateInput(e.target.value) })} dir="ltr" className={`input-base focus:ring-2 ${ACCENT}`} />
       </div>
 
       <button onClick={onReset} className="btn-neutral h-[38px] shrink-0">

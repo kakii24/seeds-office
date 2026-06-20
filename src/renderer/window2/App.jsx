@@ -74,8 +74,10 @@ export default function App() {
           return m ? `${m[3]}-${m[2]}-${m[1]}` : d;
         };
         const isoDate = toISO(r.delivery_date) || r.delivery_date;
-        if (filters.dateFrom && (!isoDate || isoDate < filters.dateFrom)) return false;
-        if (filters.dateTo && (!isoDate || isoDate > filters.dateTo)) return false;
+        const isoFrom = toISO(filters.dateFrom);
+        const isoTo = toISO(filters.dateTo);
+        if (isoFrom && isoFrom.length === 10 && (!isoDate || isoDate < isoFrom)) return false;
+        if (isoTo && isoTo.length === 10 && (!isoDate || isoDate > isoTo)) return false;
       }
       return true;
     });
