@@ -23,7 +23,7 @@ export default function FilterBar({ filters, onChange, onReset }) {
       </div>
 
       <div className="min-w-[140px] flex-1">
-        <label className="mb-1 block text-xs font-semibold text-gray-500">recherche par nin carte fallah</label>
+        <label className="mb-1 block text-xs font-semibold text-gray-500">Recherche par N° carte fellah / NIN</label>
         <div className="relative">
           <svg className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
             <circle cx="11" cy="11" r="8" /><path d="m21 21-4.3-4.3" />
@@ -32,7 +32,7 @@ export default function FilterBar({ filters, onChange, onReset }) {
             id="Recherche par nin carte fallah"
             value={filters.searchNIN}
             onChange={(e) => onChange({ searchNIN: e.target.value })}
-            placeholder="recherche oar nin carte fallah"
+            placeholder="N° carte fellah ou NIN..."
             dir="ltr"
             className={`input-base pl-9 focus:ring-2 ${ACCENT}`}
           />

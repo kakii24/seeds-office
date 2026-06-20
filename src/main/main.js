@@ -111,8 +111,14 @@ function displayDate(iso) {
   return `${m[3]}/${m[2]}/${m[1]}`;
 }
 
-async function exportDeliveriesXlsx(event, farmerId) {
-  const rows = dbApi.getDeliveries(farmerId);
+async function exportDeliveriesXlsx(event, filteredIds) {
+  let rows = dbApi.getDeliveries();
+
+  // If filtered IDs are provided, only export those rows
+  if (Array.isArray(filteredIds) && filteredIds.length > 0) {
+    const idSet = new Set(filteredIds.map(Number));
+    rows = rows.filter((r) => idSet.has(r.id));
+  }
 
   const data = rows.map((r, i) => ({
     'N°': i + 1,
@@ -151,10 +157,9 @@ async function exportDeliveriesXlsx(event, farmerId) {
   XLSX.utils.book_append_sheet(wb, ws, 'Livraisons');
 
   const win = BrowserWindow.fromWebContents(event.sender);
-  const stamp = new Date().toISOString().slice(0, 10);
   const { canceled, filePath } = await dialog.showSaveDialog(win, {
     title: 'Exporter les livraisons',
-    defaultPath: `livraisons_semences_${stamp}.xlsx`,
+    defaultPath: `Suivi_Distribution.xlsx`,
     filters: [{ name: 'Classeur Excel', extensions: ['xlsx'] }]
   });
 

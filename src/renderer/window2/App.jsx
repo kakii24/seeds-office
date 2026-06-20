@@ -51,8 +51,9 @@ export default function App() {
         if (!hay.includes(qName)) return false;
       }
       if (qNin) {
-        const hay = (r.nin || '').toLowerCase();
-        if (!hay.includes(qNin) && qNin !== '#recherche par nin carte fallah') return false;
+        const ninHay = (r.nin || '').toLowerCase();
+        const carteHay = (r.num_carte_nationale || '').toLowerCase();
+        if (!ninHay.includes(qNin) && !carteHay.includes(qNin)) return false;
       }
       if (qOp) {
         const hay = (r.operator || '').toLowerCase();
@@ -65,11 +66,16 @@ export default function App() {
       if (filters.status && filters.status !== 'Tout') {
         if ((r.service_done || 'Non') !== filters.status) return false;
       }
-      if (filters.dateFrom) {
-        if (!r.delivery_date || r.delivery_date < filters.dateFrom) return false;
-      }
-      if (filters.dateTo) {
-        if (!r.delivery_date || r.delivery_date > filters.dateTo) return false;
+      if (filters.dateFrom || filters.dateTo) {
+        // Convert stored DD/MM/YYYY to YYYY-MM-DD for comparison
+        const toISO = (d) => {
+          if (!d) return '';
+          const m = /^(\d{2})\/(\d{2})\/(\d{4})$/.exec(d);
+          return m ? `${m[3]}-${m[2]}-${m[1]}` : d;
+        };
+        const isoDate = toISO(r.delivery_date) || r.delivery_date;
+        if (filters.dateFrom && (!isoDate || isoDate < filters.dateFrom)) return false;
+        if (filters.dateTo && (!isoDate || isoDate > filters.dateTo)) return false;
       }
       return true;
     });
@@ -110,7 +116,8 @@ export default function App() {
 
   const handleExport = async () => {
     try {
-      const res = await window.api.exportDeliveriesXlsx();
+      const filteredIds = filtered.map(r => r.id);
+      const res = await window.api.exportDeliveriesXlsx(filteredIds);
       if (res?.success) toast.success('Fichier Excel exporté');
       else if (res && !res.canceled) toast.error(`Erreur : ${res.error || 'export échoué'}`);
     } catch (e) {

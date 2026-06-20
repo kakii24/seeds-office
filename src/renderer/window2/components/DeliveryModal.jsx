@@ -15,8 +15,8 @@ function FarmerInfoCard({ farmer }) {
   const items = [
     ['Nom & Prénom', fullName(farmer)],
     ['Raison Sociale', farmer.raison_sociale || '—'],
-    ['NIN / Immatriculation', farmer.nin || '—'],
-    ['N° Carte Nationale', farmer.num_carte_nationale || '—'],
+    ['Immatriculation N° carte fellah', farmer.nin || '—'],
+    ['NIN', farmer.num_carte_nationale || '—'],
     ['Date d\'émission', farmer.issue_date || '—'],
     ['Commune', farmer.commune || '—'],
     ['Daïra', farmer.daira || '—'],
@@ -208,8 +208,7 @@ export default function DeliveryModal({ open, onClose, onSaved, farmers, editing
     if (!cropId) missingFields.push("Culture");
     if (!String(fields.operator || '').trim()) missingFields.push("Opérateur");
     if (!String(fields.quantity_delivered || '').trim()) missingFields.push("Quantité livrée");
-    if (!String(fields.amount || '').trim()) missingFields.push("Montant après subvention");
-    if (!String(fields.invoice_number || '').trim()) missingFields.push("N° Facture");
+
     if (!String(fields.delivery_date || '').trim()) missingFields.push("Date de livraison");
 
     if (missingFields.length > 0) {

@@ -74,7 +74,7 @@ export default function PrintPreviewModal({ open, onClose, farmer, crops, onPrin
             <h1 className="text-[12px] font-bold uppercase tracking-wide leading-normal">
               DEMANDE D'ACQUISITION EN MATIERES ET PRODUITS CHIMIQUES<br />
               CLASSES A USAGE AGRICOLE PAR LES AGRICULTEURS<br />
-              <span className="text-[10px] font-bold lowercase">(Liste du MEM)</span>
+              <span className="text-[10px] font-bold lowercase">(List du MEM)</span>
             </h1>
           </div>
 
@@ -106,17 +106,20 @@ export default function PrintPreviewModal({ open, onClose, farmer, crops, onPrin
               </div>
 
               <div className="flex items-end gap-2 w-full">
-                <span className="shrink-0 font-medium">Immatriculation N° national carte de fellah :</span>
+                <span className="shrink-0 font-medium">Immatriculation N° nationale carte de fellah :</span>
                 <span className="flex-1 border-b border-dotted border-black/70 px-1 font-mono text-[10px] font-semibold text-gray-900 min-h-[16px]">
-                  {farmer.nin || ''}
-                </span>
-                <span className="shrink-0 font-medium">NIN :</span>
-                <span className="w-[150px] border-b border-dotted border-black/70 px-1 font-mono text-[10px] font-semibold text-gray-900 min-h-[16px]">
                   {farmer.nin || ''}
                 </span>
                 <span className="shrink-0 font-medium">Délivrée le :</span>
                 <span className="w-[120px] border-b border-dotted border-black/70 px-1 font-semibold text-gray-900 min-h-[16px]">
                   {farmer.issue_date ? displayDate(farmer.issue_date) : ''}
+                </span>
+              </div>
+
+              <div className="flex items-end gap-2 w-full">
+                <span className="shrink-0 font-medium">NIN :</span>
+                <span className="w-[250px] border-b border-dotted border-black/70 px-1 font-mono text-[10px] font-semibold text-gray-900 min-h-[16px]">
+                  {farmer.num_carte_nationale || ''}
                 </span>
               </div>
 
@@ -247,8 +250,8 @@ export default function PrintPreviewModal({ open, onClose, farmer, crops, onPrin
                     <td className="border border-black px-2 py-1">{c.period || '\u00A0'}</td>
                   </tr>
                 ))}
-                {/* Pad with empty rows to have at least 3 rows visually */}
-                {Array.from({ length: Math.max(0, 3 - rows.length) }).map((_, idx) => (
+                {/* Pad with empty rows to have at least 2 rows visually */}
+                {Array.from({ length: Math.max(0, 2 - rows.length) }).map((_, idx) => (
                   <tr key={`empty-${idx}`} className="h-8 text-center text-gray-400">
                     <td className="border border-black px-2 py-1"></td>
                     <td className="border border-black px-2 py-1"></td>
@@ -263,7 +266,7 @@ export default function PrintPreviewModal({ open, onClose, farmer, crops, onPrin
           </div>
 
           {/* 5- Mesures obligatoires & Signatures */}
-          <div className="mt-6 text-[10px] leading-relaxed text-gray-800">
+          <div className="mt-3 text-[10px] leading-relaxed text-gray-800">
             <h3 className="font-bold text-[11px] mb-1">5- Mesures obligatoires à prendre par l'agriculteur :</h3>
             <p>1-conserver en lieu sur ( sécurisé ) les produits achetés ;</p>
             <p>2-déclarer périodiquement les produits détenus et leur niveau de consommation ;</p>
@@ -292,7 +295,7 @@ export default function PrintPreviewModal({ open, onClose, farmer, crops, onPrin
               <span className="w-[150px] border-b border-dotted border-black"></span>
             </div>
 
-            <div className="flex justify-between items-start mt-8 text-[11px] font-bold">
+            <div className="flex justify-between items-start mt-4 text-[11px] font-bold">
               <div className="text-left w-1/2">
                 <p>Visa du subdivisionnaire/VISA.APC</p>
               </div>

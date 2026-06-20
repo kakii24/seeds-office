@@ -276,6 +276,7 @@ const DELIVERY_SELECT = `
     f.last_name           AS last_name,
     f.first_name          AS first_name,
     f.nin                 AS nin,
+    f.num_carte_nationale AS num_carte_nationale,
     cr.crop_category      AS crop_category,
     cr.type               AS type,
     cr.superficie         AS superficie,

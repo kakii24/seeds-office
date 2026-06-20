@@ -43,7 +43,7 @@ export default function RegistrationForm({ farmer, onField, crops, setCrops, onN
           <Field fr="Lieu de naissance" ar="مكان الميلاد" value={farmer.place_of_birth} onChange={set('place_of_birth')} accentClass={ACCENT} />
           
           <Field 
-            fr="NIN / Immatriculation N° national carte de fellah" 
+            fr="Immatriculation N° nationale carte de fellah" 
             ar="رقم التعريف الوطني / رقم بطاقة الفلاح" 
             required 
             value={farmer.nin} 
@@ -54,7 +54,7 @@ export default function RegistrationForm({ farmer, onField, crops, setCrops, onN
           />
 
           <Field
-            fr="Numéro de la carte nationale"
+            fr="NIN"
             ar="رقم بطاقة التعريف الوطنية"
             value={farmer.num_carte_nationale}
             onChange={set('num_carte_nationale')}
