@@ -38,7 +38,7 @@ export default function PrintPreviewModal({ open, onClose, farmer, crops, onPrin
         </div>
 
         {/* The official printable document */}
-        <div className="printable mx-auto rounded-lg bg-white p-12 text-[12px] leading-relaxed text-black shadow-modal font-sans" style={{ minHeight: '297mm', width: '210mm' }}>
+        <div className="printable mx-auto rounded-lg bg-white p-12 print:p-6 text-[12px] leading-relaxed text-black shadow-modal font-sans print:transform print:origin-top print:scale-[0.98]" style={{ minHeight: '297mm', width: '210mm' }}>
           
           {/* Header Section */}
           <div className="text-center">
@@ -79,9 +79,9 @@ export default function PrintPreviewModal({ open, onClose, farmer, crops, onPrin
           </div>
 
           {/* 1- Identification de l'agriculteur */}
-          <div className="mt-6">
-            <h2 className="text-[11.5px] font-bold mb-2">1- Identification de l'agriculteur</h2>
-            <div className="space-y-3.5 text-[11px]">
+          <div className="mt-6 print:mt-3">
+            <h2 className="text-[11.5px] font-bold mb-2 print:mb-1">1- Identification de l'agriculteur</h2>
+            <div className="space-y-3.5 print:space-y-2 text-[11px]">
               
               <div className="flex items-end gap-2 w-full">
                 <span className="shrink-0 font-medium">Nom :</span>
@@ -157,8 +157,8 @@ export default function PrintPreviewModal({ open, onClose, farmer, crops, onPrin
           </div>
 
           {/* 2- Raison sociale / exploitation */}
-          <div className="mt-6">
-            <div className="space-y-3.5 text-[11px]">
+          <div className="mt-6 print:mt-3">
+            <div className="space-y-3.5 print:space-y-2 text-[11px]">
               
               <div className="flex items-end gap-2 w-full">
                 <span className="shrink-0 font-bold">2- Raison sociale :</span>
@@ -204,9 +204,9 @@ export default function PrintPreviewModal({ open, onClose, farmer, crops, onPrin
           </div>
 
           {/* 3- Références permis de travail */}
-          <div className="mt-6">
-            <h2 className="text-[11.5px] font-bold mb-2">3-Références du permis de travail ou du contrat ( pour les étrangers ) :</h2>
-            <div className="space-y-3.5 text-[11px]">
+          <div className="mt-6 print:mt-3">
+            <h2 className="text-[11.5px] font-bold mb-2 print:mb-1">3-Références du permis de travail ou du contrat ( pour les étrangers ) :</h2>
+            <div className="space-y-3.5 print:space-y-2 text-[11px]">
               
               <div className="flex items-end gap-2 w-full">
                 <span className="shrink-0 font-medium">N° :</span>
@@ -224,8 +224,8 @@ export default function PrintPreviewModal({ open, onClose, farmer, crops, onPrin
           </div>
 
           {/* 4- Informations produits */}
-          <div className="mt-6">
-            <h2 className="text-[11.5px] font-bold mb-2">4-Informations sur les produits utilisés :</h2>
+          <div className="mt-6 print:mt-3">
+            <h2 className="text-[11.5px] font-bold mb-2 print:mb-1">4-Informations sur les produits utilisés :</h2>
             <table className="w-full border-collapse border border-black text-center text-[10.5px]">
               <thead>
                 <tr className="bg-gray-50 font-bold h-8">
@@ -266,7 +266,7 @@ export default function PrintPreviewModal({ open, onClose, farmer, crops, onPrin
           </div>
 
           {/* 5- Mesures obligatoires & Signatures */}
-          <div className="mt-3 text-[10px] leading-relaxed text-gray-800">
+          <div className="mt-3 print:mt-2 text-[10px] leading-relaxed text-gray-800 print:break-inside-avoid">
             <h3 className="font-bold text-[11px] mb-1">5- Mesures obligatoires à prendre par l'agriculteur :</h3>
             <p>1-conserver en lieu sur ( sécurisé ) les produits achetés ;</p>
             <p>2-déclarer périodiquement les produits détenus et leur niveau de consommation ;</p>
@@ -288,14 +288,14 @@ export default function PrintPreviewModal({ open, onClose, farmer, crops, onPrin
               Certifie sur l'honneur que les informations portées sur la présente demande sont exactes et que les quantités seront utilisées totalement pour les besoins des cultures déclarées.
             </p>
 
-            <div className="text-right mt-6 flex justify-end gap-2 text-[11px]">
+            <div className="text-right mt-6 print:mt-4 flex justify-end gap-2 text-[11px]">
               <span>Fait à</span>
               <span className="w-[150px] border-b border-dotted border-black"></span>
               <span>le</span>
               <span className="w-[150px] border-b border-dotted border-black"></span>
             </div>
 
-            <div className="flex justify-between items-start mt-12 text-[11px] font-bold pb-24">
+            <div className="flex justify-between items-start mt-12 print:mt-6 text-[11px] font-bold pb-24 print:pb-8">
               <div className="text-left w-1/2">
                 <p>Visa du subdivisionnaire/VISA.APC</p>
               </div>
