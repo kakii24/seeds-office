@@ -70,7 +70,7 @@ export default function Sidebar({ farmers, query, onQuery, selectedId, onSelect 
                         </span>
                       )}
                     </div>
-                    <p className="mt-0.5 truncate font-mono text-xs text-gray-500">NIN: {f.nin || '—'}</p>
+                    <p className="mt-0.5 truncate font-mono text-xs text-gray-500">N° carte de fallah: {f.nin || '—'}</p>
                     <p className="truncate text-xs text-forest-700">{f.wilaya || '—'}</p>
                   </button>
                 </li>
