@@ -41,7 +41,18 @@ CREATE TABLE IF NOT EXISTS crop_requests (
   product_nature TEXT,
   quantity_requested TEXT,
   quantity_unit TEXT DEFAULT 'Kg',
-  period TEXT
+  period TEXT,
+  validee_annee TEXT DEFAULT '',
+  chambre_agri_wilaya TEXT DEFAULT '',
+  activite_principale TEXT DEFAULT '',
+  adresse_exploitation TEXT DEFAULT '',
+  sat_ha TEXT DEFAULT '',
+  sau_ha TEXT DEFAULT '',
+  types_culture_fertiliser TEXT DEFAULT '',
+  superficie_fertiliser_ha TEXT DEFAULT '',
+  type_engrais_sollicite TEXT DEFAULT '',
+  qte_engrais_autorisee_ql TEXT DEFAULT '',
+  periode_epandage TEXT DEFAULT ''
 );
 
 CREATE TABLE IF NOT EXISTS deliveries (
@@ -104,6 +115,39 @@ function initDatabase(dbPath) {
   } catch (e) {
     // Column already exists
   }
+  try {
+    db.exec(`ALTER TABLE crop_requests ADD COLUMN validee_annee TEXT DEFAULT ''`);
+  } catch (e) {}
+  try {
+    db.exec(`ALTER TABLE crop_requests ADD COLUMN chambre_agri_wilaya TEXT DEFAULT ''`);
+  } catch (e) {}
+  try {
+    db.exec(`ALTER TABLE crop_requests ADD COLUMN activite_principale TEXT DEFAULT ''`);
+  } catch (e) {}
+  try {
+    db.exec(`ALTER TABLE crop_requests ADD COLUMN adresse_exploitation TEXT DEFAULT ''`);
+  } catch (e) {}
+  try {
+    db.exec(`ALTER TABLE crop_requests ADD COLUMN sat_ha TEXT DEFAULT ''`);
+  } catch (e) {}
+  try {
+    db.exec(`ALTER TABLE crop_requests ADD COLUMN sau_ha TEXT DEFAULT ''`);
+  } catch (e) {}
+  try {
+    db.exec(`ALTER TABLE crop_requests ADD COLUMN types_culture_fertiliser TEXT DEFAULT ''`);
+  } catch (e) {}
+  try {
+    db.exec(`ALTER TABLE crop_requests ADD COLUMN superficie_fertiliser_ha TEXT DEFAULT ''`);
+  } catch (e) {}
+  try {
+    db.exec(`ALTER TABLE crop_requests ADD COLUMN type_engrais_sollicite TEXT DEFAULT ''`);
+  } catch (e) {}
+  try {
+    db.exec(`ALTER TABLE crop_requests ADD COLUMN qte_engrais_autorisee_ql TEXT DEFAULT ''`);
+  } catch (e) {}
+  try {
+    db.exec(`ALTER TABLE crop_requests ADD COLUMN periode_epandage TEXT DEFAULT ''`);
+  } catch (e) {}
 
   return db;
 }
@@ -123,7 +167,9 @@ const FARMER_FIELDS = [
 ];
 
 const CROP_FIELDS = [
-  'crop_category', 'type', 'superficie', 'product_nature', 'quantity_requested', 'quantity_unit', 'period'
+  'crop_category', 'type', 'superficie', 'product_nature', 'quantity_requested', 'quantity_unit', 'period',
+  'validee_annee', 'chambre_agri_wilaya', 'activite_principale', 'adresse_exploitation', 'sat_ha', 'sau_ha',
+  'types_culture_fertiliser', 'superficie_fertiliser_ha', 'type_engrais_sollicite', 'qte_engrais_autorisee_ql', 'periode_epandage'
 ];
 
 /**
@@ -137,15 +183,24 @@ function saveFarmer({ farmer, crops }) {
 
   const insertCrop = d.prepare(`
     INSERT INTO crop_requests
-      (farmer_id, crop_category, type, superficie, product_nature, quantity_requested, quantity_unit, period)
+      (farmer_id, crop_category, type, superficie, product_nature, quantity_requested, quantity_unit, period,
+       validee_annee, chambre_agri_wilaya, activite_principale, adresse_exploitation, sat_ha, sau_ha,
+       types_culture_fertiliser, superficie_fertiliser_ha, type_engrais_sollicite, qte_engrais_autorisee_ql, periode_epandage)
     VALUES
-      (@farmer_id, @crop_category, @type, @superficie, @product_nature, @quantity_requested, @quantity_unit, @period)
+      (@farmer_id, @crop_category, @type, @superficie, @product_nature, @quantity_requested, @quantity_unit, @period,
+       @validee_annee, @chambre_agri_wilaya, @activite_principale, @adresse_exploitation, @sat_ha, @sau_ha,
+       @types_culture_fertiliser, @superficie_fertiliser_ha, @type_engrais_sollicite, @qte_engrais_autorisee_ql, @periode_epandage)
   `);
   const updateCrop = d.prepare(`
     UPDATE crop_requests SET
       crop_category = @crop_category, type = @type, superficie = @superficie,
       product_nature = @product_nature, quantity_requested = @quantity_requested,
-      quantity_unit = @quantity_unit, period = @period
+      quantity_unit = @quantity_unit, period = @period,
+      validee_annee = @validee_annee, chambre_agri_wilaya = @chambre_agri_wilaya,
+      activite_principale = @activite_principale, adresse_exploitation = @adresse_exploitation,
+      sat_ha = @sat_ha, sau_ha = @sau_ha, types_culture_fertiliser = @types_culture_fertiliser,
+      superficie_fertiliser_ha = @superficie_fertiliser_ha, type_engrais_sollicite = @type_engrais_sollicite,
+      qte_engrais_autorisee_ql = @qte_engrais_autorisee_ql, periode_epandage = @periode_epandage
     WHERE id = @id AND farmer_id = @farmer_id
   `);
   const deleteCrop = d.prepare('DELETE FROM crop_requests WHERE id = ?');
@@ -158,7 +213,18 @@ function saveFarmer({ farmer, crops }) {
     product_nature: str(crop.product_nature).toUpperCase(), // Nature du Produit saved as uppercase
     quantity_requested: str(crop.quantity_requested),
     quantity_unit: str(crop.quantity_unit || 'Kg'),
-    period: str(crop.period)
+    period: str(crop.period),
+    validee_annee: str(crop.validee_annee),
+    chambre_agri_wilaya: str(crop.chambre_agri_wilaya),
+    activite_principale: str(crop.activite_principale),
+    adresse_exploitation: str(crop.adresse_exploitation),
+    sat_ha: str(crop.sat_ha),
+    sau_ha: str(crop.sau_ha),
+    types_culture_fertiliser: str(crop.types_culture_fertiliser),
+    superficie_fertiliser_ha: str(crop.superficie_fertiliser_ha),
+    type_engrais_sollicite: str(crop.type_engrais_sollicite),
+    qte_engrais_autorisee_ql: str(crop.qte_engrais_autorisee_ql),
+    periode_epandage: str(crop.periode_epandage)
   });
 
   const tx = d.transaction(() => {
@@ -284,7 +350,18 @@ const DELIVERY_SELECT = `
     cr.product_nature     AS product_nature,
     cr.quantity_requested AS quantity_requested,
     cr.quantity_unit      AS quantity_unit,
-    cr.period             AS period
+    cr.period             AS period,
+    cr.validee_annee      AS validee_annee,
+    cr.chambre_agri_wilaya AS chambre_agri_wilaya,
+    cr.activite_principale AS activite_principale,
+    cr.adresse_exploitation AS adresse_exploitation,
+    cr.sat_ha             AS sat_ha,
+    cr.sau_ha             AS sau_ha,
+    cr.types_culture_fertiliser AS types_culture_fertiliser,
+    cr.superficie_fertiliser_ha AS superficie_fertiliser_ha,
+    cr.type_engrais_sollicite AS type_engrais_sollicite,
+    cr.qte_engrais_autorisee_ql AS qte_engrais_autorisee_ql,
+    cr.periode_epandage   AS periode_epandage
   FROM crop_requests cr
   JOIN farmers f        ON f.id = cr.farmer_id
   LEFT JOIN deliveries dl ON dl.crop_request_id = cr.id

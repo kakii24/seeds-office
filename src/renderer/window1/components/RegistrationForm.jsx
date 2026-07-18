@@ -175,6 +175,27 @@ export default function RegistrationForm({ farmer, onField, crops, setCrops, onN
           </table>
         </div>
       </SectionCard>
+
+      {/* Section 3 — Fiche d'engagement (engrais) */}
+      <SectionCard title="Fiche d'engagement (Engrais)" ar="بطاقة التعهد لاستعمال الأسمدة">
+        <div className="grid grid-cols-1 gap-x-5 gap-y-4 md:grid-cols-3">
+          <Field fr="Validée pour l'année" ar="صاحبة السنة" value={crops[0]?.validee_annee || ''} onChange={(val) => updateCrop(0, 'validee_annee', val)} accentClass={ACCENT} />
+          <Field fr="Chambre d'agriculture de wilaya de" ar="الغرفة الفلاحية لولاية" value={crops[0]?.chambre_agri_wilaya || ''} onChange={(val) => updateCrop(0, 'chambre_agri_wilaya', val)} accentClass={ACCENT} />
+          <Field fr="Activité principale" ar="النشاط الرئيسي" value={crops[0]?.activite_principale || ''} onChange={(val) => updateCrop(0, 'activite_principale', val)} accentClass={ACCENT} />
+          
+          <Field fr="Adresse de l'exploitation agricole" ar="عنوان المستثمرة الفلاحية" value={crops[0]?.adresse_exploitation || ''} onChange={(val) => updateCrop(0, 'adresse_exploitation', val)} accentClass={ACCENT} className="md:col-span-3" />
+          
+          <Field fr="Superficie agricole totale (SAT) (Ha)" ar="المساحة الفلاحية الكلية - هكتار" value={crops[0]?.sat_ha || ''} onChange={(val) => updateCrop(0, 'sat_ha', val)} accentClass={ACCENT} />
+          <Field fr="Superficie agricole utile (SAU) (Ha)" ar="المساحة الصالحة للزراعة - هكتار" value={crops[0]?.sau_ha || ''} onChange={(val) => updateCrop(0, 'sau_ha', val)} accentClass={ACCENT} />
+          <Field fr="Types de culture à fertiliser" ar="نوع المحاصيل المراد تسميدها" value={crops[0]?.types_culture_fertiliser || ''} onChange={(val) => updateCrop(0, 'types_culture_fertiliser', val)} accentClass={ACCENT} />
+          
+          <Field fr="Superficie à fertiliser (Ha)" ar="المساحة المراد تسميدها - هكتار" value={crops[0]?.superficie_fertiliser_ha || ''} onChange={(val) => updateCrop(0, 'superficie_fertiliser_ha', val)} accentClass={ACCENT} />
+          <Field fr="Type d'engrais sollicité" ar="نوع السماد المطلوب" value={crops[0]?.type_engrais_sollicite || ''} onChange={(val) => updateCrop(0, 'type_engrais_sollicite', val)} accentClass={ACCENT} />
+          <Field fr="Quantité d'engrais autorisée (ql)" ar="كمية السماد المرخص بها - قنطار" value={crops[0]?.qte_engrais_autorisee_ql || ''} onChange={(val) => updateCrop(0, 'qte_engrais_autorisee_ql', val)} accentClass={ACCENT} />
+          
+          <Field fr="Période d'épandage de cet engrais" ar="فترة نثر السماد" value={crops[0]?.periode_epandage || ''} onChange={(val) => updateCrop(0, 'periode_epandage', val)} accentClass={ACCENT} className="md:col-span-3" />
+        </div>
+      </SectionCard>
     </div>
   );
 }
