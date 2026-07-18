@@ -2,7 +2,8 @@ import React from 'react';
 
 const TABS = [
   { id: 'registration', icon: '🌾', fr: 'Enregistrement', ar: 'التسجيل' },
-  { id: 'distribution', icon: '📦', fr: 'Suivi de Distribution', ar: 'التوزيع' }
+  { id: 'distribution', icon: '📦', fr: 'Suivi de Distribution', ar: 'التوزيع' },
+  { id: 'alerts', icon: '⚠️', fr: "Alertes d'utilisation", ar: 'تنبيهات الاستعمال' }
 ];
 
 /** Top navigation bar that switches between the two in-app views. */
