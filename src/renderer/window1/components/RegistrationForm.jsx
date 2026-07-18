@@ -37,7 +37,7 @@ export default function RegistrationForm({ farmer, onField, crops, setCrops, onN
         <div className="grid grid-cols-1 gap-x-5 gap-y-4 md:grid-cols-3">
           <Field fr="Nom de famille" ar="اللقب" required value={farmer.last_name} onChange={set('last_name')} accentClass={ACCENT} />
           <Field fr="Prénom" ar="الاسم" required value={farmer.first_name} onChange={set('first_name')} accentClass={ACCENT} />
-          <Field fr="Raison Sociale" ar="الاسم الاجتماعي" required value={farmer.raison_sociale} onChange={set('raison_sociale')} accentClass={ACCENT} />
+          <Field fr="Raison Sociale" required value={farmer.raison_sociale} onChange={set('raison_sociale')} accentClass={ACCENT} />
           
           <Field fr="Date de naissance" ar="تاريخ الميلاد" type="text" placeholder="JJ/MM/AAAA" value={farmer.dob} onChange={(val) => set('dob')(formatDateInput(val))} accentClass={ACCENT} />
           <Field fr="Lieu de naissance" ar="مكان الميلاد" value={farmer.place_of_birth} onChange={set('place_of_birth')} accentClass={ACCENT} />
