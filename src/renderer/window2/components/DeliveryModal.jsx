@@ -71,7 +71,8 @@ function InfoCard({ crop }) {
 
 export default function DeliveryModal({ open, onClose, onSaved, farmers, editing }) {
   const toast = useToast();
-  const isEdit = !!editing;
+  const isEditMode = !!(editing && editing.delivery_id);
+  const disableSelection = !!editing;
 
   const [farmerId, setFarmerId] = useState('');
   const [cropId, setCropId] = useState('');
@@ -84,7 +85,7 @@ export default function DeliveryModal({ open, onClose, onSaved, farmers, editing
 
   // Autofocus the NIN search input field when opening in non-edit mode
   useEffect(() => {
-    if (open && !isEdit) {
+    if (open && !disableSelection) {
       const timer = setTimeout(() => {
         if (inputRef.current) {
           inputRef.current.focus();
@@ -93,7 +94,7 @@ export default function DeliveryModal({ open, onClose, onSaved, farmers, editing
       }, 100);
       return () => clearTimeout(timer);
     }
-  }, [open, isEdit]);
+  }, [open, disableSelection]);
 
   // Initialise the modal each time it opens or the edited row changes.
   useEffect(() => {
@@ -112,14 +113,18 @@ export default function DeliveryModal({ open, onClose, onSaved, farmers, editing
         }
       });
 
-      setFields({
-        operator: editing.operator || '',
-        quantity_delivered: editing.quantity_delivered || '',
-        amount: editing.amount || '',
-        invoice_number: editing.invoice_number || '',
-        delivery_date: editing.delivery_date ? displayDate(editing.delivery_date) : todayDMY(),
-        service_done: editing.service_done === 'Oui' ? 'Oui' : 'Non'
-      });
+      if (editing.delivery_id) {
+        setFields({
+          operator: editing.operator || '',
+          quantity_delivered: editing.quantity_delivered || '',
+          amount: editing.amount || '',
+          invoice_number: editing.invoice_number || '',
+          delivery_date: editing.delivery_date ? displayDate(editing.delivery_date) : todayDMY(),
+          service_done: editing.service_done === 'Oui' ? 'Oui' : 'Non'
+        });
+      } else {
+        setFields(emptyFields());
+      }
     } else {
       setFarmerId('');
       setCropId('');
@@ -192,7 +197,7 @@ export default function DeliveryModal({ open, onClose, onSaved, farmers, editing
   };
 
   // The crop details shown in the info card.
-  const cropInfo = isEdit && editing
+  const cropInfo = disableSelection && editing
     ? {
         crop_category: editing.crop_category, type: editing.type, superficie: editing.superficie,
         product_nature: editing.product_nature, quantity_requested: editing.quantity_requested,
@@ -222,7 +227,7 @@ export default function DeliveryModal({ open, onClose, onSaved, farmers, editing
     }
     try {
       const payload = {
-        ...(isEdit ? { id: editing.id } : {}),
+        ...(isEditMode ? { id: editing.delivery_id } : {}),
         farmer_id: Number(farmerId),
         crop_request_id: Number(cropId),
         ...fields
@@ -243,7 +248,7 @@ export default function DeliveryModal({ open, onClose, onSaved, farmers, editing
     <>
       <button onClick={onClose} className="btn-neutral">Annuler</button>
       <button onClick={handleSave} className="btn bg-amber2-500 text-white hover:brightness-110">
-        {isEdit ? 'Mettre à jour' : 'Enregistrer'}
+        {isEditMode ? 'Mettre à jour' : 'Enregistrer'}
       </button>
     </>
   );
@@ -252,7 +257,7 @@ export default function DeliveryModal({ open, onClose, onSaved, farmers, editing
     <Modal
       open={open}
       onClose={onClose}
-      title={isEdit ? 'Modifier la livraison' : 'Enregistrer une livraison'}
+      title={isEditMode ? 'Modifier la livraison' : 'Enregistrer une livraison'}
       headerClass="bg-gradient-to-r from-olive-900 to-olive-700"
       footer={footer}
       maxWidth="max-w-5xl"
@@ -261,7 +266,7 @@ export default function DeliveryModal({ open, onClose, onSaved, farmers, editing
       <div className="flex flex-col gap-4">
 
         {/* ── Search section: overflow visible so dropdown floats freely ── */}
-        {!isEdit && (
+        {!disableSelection && (
           <div className="relative z-10">
             <FieldLabel fr="Rechercher l'Agriculteur (NIN ou Nom)" ar="البحث عن الفلاح بواسطة رقم التعريف أو الاسم" required />
             <input
@@ -296,7 +301,7 @@ export default function DeliveryModal({ open, onClose, onSaved, farmers, editing
                       {f.last_name} {f.first_name}
                     </span>
                     <span className="text-xs text-gray-500 font-mono mt-0.5">
-                      NIN: {f.nin || '—'} &nbsp;|&nbsp; Commune: {f.commune || '—'} &nbsp;|&nbsp; Wilaya: {f.wilaya || '—'}
+                      NIN: {f.nin || '—'} &nbsp;|&nbsp; Enregistré le: {f.created_at ? displayDate(f.created_at) : '—'} &nbsp;|&nbsp; Commune: {f.commune || '—'}
                     </span>
                   </button>
                 ))}
@@ -310,7 +315,7 @@ export default function DeliveryModal({ open, onClose, onSaved, farmers, editing
 
         {searchedFarmer && <FarmerInfoCard farmer={searchedFarmer} />}
 
-        {!isEdit && farmerId && (
+        {!disableSelection && farmerId && (
           <div>
             <FieldLabel fr="Sélectionner la culture" ar="اختر المحصول" required />
             <select value={cropId} onChange={(e) => setCropId(e.target.value)} className={`input-base focus:ring-2 ${ACCENT}`}>
@@ -329,7 +334,7 @@ export default function DeliveryModal({ open, onClose, onSaved, farmers, editing
 
         {cropInfo && <InfoCard crop={cropInfo} />}
 
-        {(isEdit || cropId) && (
+        {(disableSelection || cropId) && (
           <div className="grid grid-cols-1 gap-x-5 gap-y-4 sm:grid-cols-2">
             <Field fr="Opérateur" ar="المزود" required value={fields.operator} onChange={setField('operator')} accentClass={ACCENT} />
             <Field fr="Quantité livrée" ar="الكمية المسلمة" required value={fields.quantity_delivered} onChange={setField('quantity_delivered')} accentClass={ACCENT} />

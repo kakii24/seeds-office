@@ -152,16 +152,17 @@ export default function App() {
     try {
       const existing = await window.api.getFarmerByNIN(nin);
       if (existing) {
-        toast.success('Agriculteur trouvé — Données chargées');
-        const { farmer: f, crops: c } = await window.api.getFarmerDetail(existing.id);
-        setSelectedId(existing.id);
+        toast.success('Agriculteur trouvé — Données chargées (nouvelle demande)');
+        const { farmer: f } = await window.api.getFarmerDetail(existing.id);
+        setSelectedId(null);
         setFarmer({
           ...emptyFarmer(),
           ...f,
+          id: null,
           dob: f.dob ? displayDate(f.dob) : '',
           issue_date: f.issue_date ? displayDate(f.issue_date) : '',
         });
-        setCrops(c.length ? c.slice(0, 1).map((x) => ({ ...emptyCrop(), ...x })) : [emptyCrop()]);
+        setCrops([emptyCrop()]);
       }
     } catch (e) {
       toast.error(`Erreur : ${e.message}`);

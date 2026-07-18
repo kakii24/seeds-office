@@ -130,12 +130,31 @@ export default function DeliveryTable({ rows, onEdit, onDelete }) {
                 <td className="border-b border-gray-100 px-3 py-2"><ServicePill value={r.service_done} /></td>
                 <td className="no-print whitespace-nowrap border-b border-gray-100 px-3 py-2">
                   <div className="flex items-center gap-1.5">
-                    <button onClick={() => onEdit(r)} className="rounded-md border border-olive-700/30 px-2 py-1 text-xs font-semibold text-olive-700 transition hover:bg-olive-700/10">
-                      Modifier
+                    <button
+                      onClick={() => onEdit(r)}
+                      className={`rounded-md border px-2 py-1 text-xs font-semibold transition ${
+                        r.delivery_id
+                          ? 'border-olive-700/30 text-olive-700 hover:bg-olive-700/10'
+                          : 'border-amber-500 bg-amber-50 text-amber-700 hover:bg-amber-100'
+                      }`}
+                    >
+                      {r.delivery_id ? 'Modifier' : 'Saisir livraison'}
                     </button>
-                    <button onClick={() => onDelete(r.id)} className="rounded-md border border-red-300 px-2 py-1 text-xs font-semibold text-red-600 transition hover:bg-red-50">
-                      Supprimer
-                    </button>
+                    {r.delivery_id ? (
+                      <button
+                        onClick={() => onDelete(r.delivery_id)}
+                        className="rounded-md border border-red-300 px-2 py-1 text-xs font-semibold text-red-600 transition hover:bg-red-50"
+                      >
+                        Supprimer
+                      </button>
+                    ) : (
+                      <button
+                        disabled
+                        className="rounded-md border border-gray-100 px-2 py-1 text-xs font-semibold text-gray-400 bg-gray-50 cursor-not-allowed"
+                      >
+                        Supprimer
+                      </button>
+                    )}
                   </div>
                 </td>
               </tr>

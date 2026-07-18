@@ -55,10 +55,12 @@ export default function RegistrationForm({ farmer, onField, crops, setCrops, onN
 
           <Field
             fr="NIN"
-            ar="رقم بطاقة التعريف الوطنية"
+            ar="رقم التعريف الوطني"
             value={farmer.num_carte_nationale}
             onChange={set('num_carte_nationale')}
             accentClass={ACCENT}
+            onBlur={onNINBlur}
+            onKeyDown={onNINKeyDown}
           />
           
           <Field fr="Date d'émission" ar="تاريخ الإصدار" type="text" placeholder="JJ/MM/AAAA" value={farmer.issue_date} onChange={(val) => set('issue_date')(formatDateInput(val))} accentClass={ACCENT} />

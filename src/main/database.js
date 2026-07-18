@@ -240,7 +240,7 @@ function getFarmerDetail(id) {
 
 function getFarmerByNIN(nin) {
   if (!nin) return null;
-  return getDb().prepare('SELECT * FROM farmers WHERE nin = ?').get(nin) || null;
+  return getDb().prepare('SELECT * FROM farmers WHERE nin = ? OR num_carte_nationale = ?').get(nin, nin) || null;
 }
 
 function deleteFarmer(id) {
@@ -264,9 +264,10 @@ function getCropRequestsForFarmer(farmerId) {
 
 const DELIVERY_SELECT = `
   SELECT
-    dl.id                 AS id,
-    dl.crop_request_id    AS crop_request_id,
-    dl.farmer_id          AS farmer_id,
+    cr.id                 AS id,
+    dl.id                 AS delivery_id,
+    cr.id                 AS crop_request_id,
+    cr.farmer_id          AS farmer_id,
     dl.operator           AS operator,
     dl.quantity_delivered AS quantity_delivered,
     dl.amount             AS amount,
@@ -284,19 +285,19 @@ const DELIVERY_SELECT = `
     cr.quantity_requested AS quantity_requested,
     cr.quantity_unit      AS quantity_unit,
     cr.period             AS period
-  FROM deliveries dl
-  JOIN farmers f       ON f.id  = dl.farmer_id
-  JOIN crop_requests cr ON cr.id = dl.crop_request_id
+  FROM crop_requests cr
+  JOIN farmers f        ON f.id = cr.farmer_id
+  LEFT JOIN deliveries dl ON dl.crop_request_id = cr.id
 `;
 
 function getDeliveries(farmerId) {
   const d = getDb();
   if (farmerId) {
     return d.prepare(
-      `${DELIVERY_SELECT} WHERE dl.farmer_id = ? ORDER BY dl.id DESC`
+      `${DELIVERY_SELECT} WHERE cr.farmer_id = ? ORDER BY COALESCE(dl.id, 0) DESC, cr.id DESC`
     ).all(farmerId);
   }
-  return d.prepare(`${DELIVERY_SELECT} ORDER BY dl.id DESC`).all();
+  return d.prepare(`${DELIVERY_SELECT} ORDER BY COALESCE(dl.id, 0) DESC, cr.id DESC`).all();
 }
 
 /** Insert or update a delivery row. */

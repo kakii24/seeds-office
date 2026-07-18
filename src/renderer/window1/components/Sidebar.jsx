@@ -1,5 +1,5 @@
 import React, { useMemo } from 'react';
-import { fullName } from '../../shared/constants.js';
+import { fullName, displayDate } from '../../shared/constants.js';
 import { EmptyState } from '../../shared/ui.jsx';
 
 export default function Sidebar({ farmers, query, onQuery, selectedId, onSelect }) {
@@ -62,7 +62,14 @@ export default function Sidebar({ farmers, query, onQuery, selectedId, onSelect 
                         : 'border-transparent bg-gray-50 hover:border-gray-200 hover:bg-white'
                     }`}
                   >
-                    <p className="truncate text-sm font-bold text-gray-800">{fullName(f) || '—'}</p>
+                    <div className="flex items-start justify-between gap-2">
+                      <p className="truncate text-sm font-bold text-gray-800">{fullName(f) || '—'}</p>
+                      {f.created_at && (
+                        <span className="shrink-0 text-[10px] text-gray-400 font-medium">
+                          {displayDate(f.created_at)}
+                        </span>
+                      )}
+                    </div>
                     <p className="mt-0.5 truncate font-mono text-xs text-gray-500">NIN: {f.nin || '—'}</p>
                     <p className="truncate text-xs text-forest-700">{f.wilaya || '—'}</p>
                   </button>
