@@ -193,8 +193,7 @@ export default function RegistrationForm({ farmer, onField, crops, setCrops, onN
           <Field fr="Type d'engrais sollicité" ar="نوع السماد المطلوب" value={crops[0]?.type_engrais_sollicite || ''} onChange={(val) => updateCrop(0, 'type_engrais_sollicite', val)} accentClass={ACCENT} />
           <Field fr="Quantité d'engrais autorisée (ql)" ar="كمية السماد المرخص بها - قنطار" value={crops[0]?.qte_engrais_autorisee_ql || ''} onChange={(val) => updateCrop(0, 'qte_engrais_autorisee_ql', val)} accentClass={ACCENT} />
           
-          <Field fr="Période d'épandage de cet engrais" ar="فترة نثر السماد" value={crops[0]?.periode_epandage || ''} onChange={(val) => updateCrop(0, 'periode_epandage', val)} accentClass={ACCENT} className="md:col-span-2" />
-          <Field type="date" fr="Date limite d'utilisation" ar="تاريخ آخر أجل للاستعمال" value={crops[0]?.date_limite_utilisation || ''} onChange={(val) => updateCrop(0, 'date_limite_utilisation', val)} accentClass={ACCENT} className="md:col-span-1" />
+          <Field fr="Période d'épandage de cet engrais" ar="فترة نثر السماد" value={crops[0]?.periode_epandage || ''} onChange={(val) => updateCrop(0, 'periode_epandage', val)} accentClass={ACCENT} className="md:col-span-3" />
         </div>
       </SectionCard>
     </div>
