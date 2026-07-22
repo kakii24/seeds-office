@@ -35,31 +35,64 @@ export default function AlertsView() {
     return off;
   }, [loadData]);
 
+  // Month extraction logic
+  const MONTHS = {
+    'janvier': 1, 'janv': 1, '01': 1, '1': 1,
+    'février': 2, 'fevrier': 2, 'fev': 2, '02': 2, '2': 2,
+    'mars': 3, 'mar': 3, '03': 3, '3': 3,
+    'avril': 4, 'avr': 4, '04': 4, '4': 4,
+    'mai': 5, '05': 5, '5': 5,
+    'juin': 6, 'jun': 6, '06': 6, '6': 6,
+    'juillet': 7, 'juil': 7, '07': 7, '7': 7,
+    'août': 8, 'aout': 8, '08': 8, '8': 8,
+    'septembre': 9, 'sept': 9, '09': 9, '9': 9,
+    'octobre': 10, 'oct': 10, '10': 10,
+    'novembre': 11, 'nov': 11, '11': 11,
+    'décembre': 12, 'decembre': 12, 'dec': 12, '12': 12
+  };
+
+  const extractLimitMonth = useCallback((periodStr) => {
+    if (!periodStr) return null;
+    const s = String(periodStr).toLowerCase();
+    const tokens = s.split(/[\s/\-]+/);
+    let lastMonth = null;
+    for (const token of tokens) {
+      if (MONTHS[token]) {
+        lastMonth = MONTHS[token];
+      } else {
+        for (const [key, val] of Object.entries(MONTHS)) {
+          if (key.length >= 3 && token.includes(key)) {
+            lastMonth = val;
+          }
+        }
+      }
+    }
+    return lastMonth;
+  }, []);
+
   // Overdue logic filtering
   const overdueRecords = useMemo(() => {
-    const todayStr = todayISO(); // YYYY-MM-DD
-    const today = new Date(todayStr);
+    const currentMonth = new Date().getMonth() + 1;
 
     return data
       .filter((r) => {
-        // Only consider records with a deadline set
-        if (!r.date_limite_utilisation) return false;
+        const limitMonth = extractLimitMonth(r.period);
+        if (limitMonth === null) return false;
         
-        // Compare dates (if date_limite_utilisation < today, it is overdue)
-        return r.date_limite_utilisation < todayStr;
+        // Overdue if current month is AFTER the Période d'utilisation
+        return currentMonth > limitMonth;
       })
       .map((r) => {
-        const limitDate = new Date(r.date_limite_utilisation);
-        const diffTime = today - limitDate;
-        const diffDays = Math.max(0, Math.ceil(diffTime / (1000 * 60 * 60 * 24)));
+        const limitMonth = extractLimitMonth(r.period);
+        const monthsOverdue = currentMonth - limitMonth;
         return {
           ...r,
-          daysOverdue: diffDays,
+          monthsOverdue,
         };
       })
-      // Sort descending by days overdue
-      .sort((a, b) => b.daysOverdue - a.daysOverdue);
-  }, [data]);
+      // Sort descending by months overdue
+      .sort((a, b) => b.monthsOverdue - a.monthsOverdue);
+  }, [data, extractLimitMonth]);
 
   // Search filtering
   const filteredOverdue = useMemo(() => {
@@ -74,9 +107,9 @@ export default function AlertsView() {
     });
   }, [overdueRecords, search]);
 
-  const maxOverdueDays = useMemo(() => {
+  const maxOverdueMonths = useMemo(() => {
     if (overdueRecords.length === 0) return 0;
-    return Math.max(...overdueRecords.map((r) => r.daysOverdue));
+    return Math.max(...overdueRecords.map((r) => r.monthsOverdue));
   }, [overdueRecords]);
 
   // Native print function
@@ -112,7 +145,7 @@ export default function AlertsView() {
         {/* Live stats */}
         <div className="mt-3 grid grid-cols-2 gap-3 sm:grid-cols-3">
           <StatCard label="Dépassements Actifs" labelAr="حالات التجاوز النشطة" value={overdueRecords.length} valueClass="text-red-200" />
-          <StatCard label="Plus Long Retard" labelAr="أطول مدة تأخير" value={maxOverdueDays > 0 ? `${maxOverdueDays} jours` : '—'} valueClass="text-amber-300" />
+          <StatCard label="Plus Long Retard" labelAr="أطول مدة تأخير" value={maxOverdueMonths > 0 ? `${maxOverdueMonths} mois` : '—'} valueClass="text-amber-300" />
           <StatCard label="Filtré par recherche" labelAr="المصفاة بالبحث" value={filteredOverdue.length} valueClass="text-white" />
         </div>
       </header>
@@ -164,8 +197,8 @@ export default function AlertsView() {
                   <th className="px-4 py-3 border-b border-red-900">N° Téléphone <span className="font-arabic font-normal text-white/60">(الهاتف)</span></th>
                   <th className="px-4 py-3 border-b border-red-900">Type d'engrais <span className="font-arabic font-normal text-white/60">(نوع السماد)</span></th>
                   <th className="px-4 py-3 border-b border-red-900">Quantité <span className="font-arabic font-normal text-white/60">(الكمية)</span></th>
-                  <th className="px-4 py-3 border-b border-red-900">Date limite <span className="font-arabic font-normal text-white/60">(تاريخ آخر أجل)</span></th>
-                  <th className="px-4 py-3 border-b border-red-900 text-center w-40">Délai dépassé de <span className="font-arabic font-normal text-white/60">(التأخير)</span></th>
+                  <th className="px-4 py-3 border-b border-red-900">Période d'utilisation <span className="font-arabic font-normal text-white/60">(فترة الاستخدام)</span></th>
+                  <th className="px-4 py-3 border-b border-red-900 text-center w-40">Mois de retard <span className="font-arabic font-normal text-white/60">(أشهر التأخير)</span></th>
                 </tr>
               </thead>
               <tbody>
@@ -206,11 +239,11 @@ export default function AlertsView() {
                         {qty} {qty !== '—' && (r.quantity_unit || 'ql')}
                       </td>
                       <td className="px-4 py-3 text-gray-800 font-medium">
-                        {displayDate(r.date_limite_utilisation)}
+                        {r.period || '—'}
                       </td>
                       <td className="px-4 py-3 text-center">
                         <span className="pill bg-red-100 text-red-700 font-bold border border-red-200">
-                          {r.daysOverdue} {r.daysOverdue === 1 ? 'jour' : 'jours'}
+                          {r.monthsOverdue} mois
                         </span>
                       </td>
                     </tr>
