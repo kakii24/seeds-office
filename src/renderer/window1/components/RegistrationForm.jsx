@@ -32,6 +32,21 @@ export default function RegistrationForm({ farmer, onField, crops, setCrops, onN
 
   return (
     <div className="mx-auto flex w-full max-w-5xl flex-col gap-6">
+      {/* N° d'inscription — very first field */}
+      <div className="overflow-hidden rounded-2xl bg-white shadow-card">
+        <div className="bg-gradient-to-r from-amber-600 to-amber-500 px-5 py-3">
+          <h3 className="flex items-center gap-2 text-base font-bold text-white">
+            N° d'inscription
+            <span className="font-arabic text-sm font-normal text-white/75">رقم التسجيل</span>
+          </h3>
+        </div>
+        <div className="p-5">
+          <div className="max-w-xs">
+            <Field fr="N° d'inscription" ar="رقم التسجيل" placeholder="NNNN/AAAA" value={crops[0]?.num_inscription || ''} onChange={(val) => updateCrop(0, 'num_inscription', val)} accentClass={ACCENT} />
+          </div>
+        </div>
+      </div>
+
       {/* Section 1 — Identification */}
       <SectionCard title="Identification de l'Agriculteur" ar="معلومات الفلاح">
         <div className="grid grid-cols-1 gap-x-5 gap-y-4 md:grid-cols-3">
@@ -78,7 +93,7 @@ export default function RegistrationForm({ farmer, onField, crops, setCrops, onN
       </SectionCard>
 
       {/* Section 2 — Crop & seed requests */}
-      <SectionCard title="Demandes de Cultures et Semences" ar="جدول الطلبات" badge="Subvention: 50%">
+      <SectionCard title="Demandes de Cultures et Semences" badge="Subvention: 50%">
         <div className="overflow-x-auto">
           <table className="w-full min-w-[760px] border-separate border-spacing-0 text-sm">
             <thead>
@@ -97,6 +112,12 @@ export default function RegistrationForm({ farmer, onField, crops, setCrops, onN
                   Nature du produit <ArabicHint>نوع المنتج</ArabicHint>
                 </th>
                 <th className="border-b border-gray-200 px-2 py-2">
+                  État du produit <ArabicHint>حالة المنتج</ArabicHint>
+                </th>
+                <th className="border-b border-gray-200 px-2 py-2">
+                  Formule <ArabicHint>الصيغة</ArabicHint>
+                </th>
+                <th className="border-b border-gray-200 px-2 py-2">
                   Quantité demandée <ArabicHint>الكمية المطلوبة</ArabicHint>
                 </th>
                 <th className="border-b border-gray-200 px-2 py-2">
@@ -110,7 +131,7 @@ export default function RegistrationForm({ farmer, onField, crops, setCrops, onN
             <tbody>
               {crops.length === 0 ? (
                 <tr>
-                  <td colSpan={8} className="px-2 py-6 text-center text-sm text-gray-400">
+                  <td colSpan={10} className="px-2 py-6 text-center text-sm text-gray-400">
                     Aucune demande
                   </td>
                 </tr>
@@ -149,6 +170,36 @@ export default function RegistrationForm({ farmer, onField, crops, setCrops, onN
                         dir="ltr" 
                         className={`input-base focus:ring-2 ${ACCENT}`} 
                       />
+                    </td>
+                    <td className="border-b border-gray-100 px-2 py-2">
+                      <div className="flex items-center gap-1">
+                        <select
+                          value={['Soluble', 'Liquide', 'Granulé'].includes(row.etat_produit) ? row.etat_produit : (row.etat_produit ? 'Autre' : '')}
+                          onChange={(e) => {
+                            const v = e.target.value;
+                            updateCrop(i, 'etat_produit', v === 'Autre' ? '' : v);
+                          }}
+                          className={`input-base focus:ring-2 ${ACCENT}`}
+                        >
+                          <option value="">— État —</option>
+                          <option value="Soluble">Soluble</option>
+                          <option value="Liquide">Liquide</option>
+                          <option value="Granulé">Granulé</option>
+                          <option value="Autre">Autre</option>
+                        </select>
+                        {!['Soluble', 'Liquide', 'Granulé', ''].includes(row.etat_produit) && (
+                          <input
+                            value={row.etat_produit}
+                            onChange={(e) => updateCrop(i, 'etat_produit', e.target.value)}
+                            dir="ltr"
+                            placeholder="Préciser..."
+                            className={`input-base focus:ring-2 ${ACCENT} w-24`}
+                          />
+                        )}
+                      </div>
+                    </td>
+                    <td className="border-b border-gray-100 px-2 py-2">
+                      <input value={row.formule || ''} onChange={(e) => updateCrop(i, 'formule', e.target.value)} dir="ltr" className={`input-base focus:ring-2 ${ACCENT}`} placeholder="Formule..." />
                     </td>
                     <td className="border-b border-gray-100 px-2 py-2">
                       <input value={row.quantity_requested} onChange={(e) => updateCrop(i, 'quantity_requested', e.target.value)} dir="ltr" className={`input-base focus:ring-2 ${ACCENT}`} />

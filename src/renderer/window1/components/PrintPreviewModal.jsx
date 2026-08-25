@@ -43,6 +43,16 @@ export default function PrintPreviewModal({ open, onClose, farmer, crops, onPrin
           
           {/* PAGE 1: Demande d'acquisition */}
           <div className="print-page bg-white p-12 print:p-8 text-[12px] leading-relaxed text-black shadow-modal print:shadow-none font-sans print:transform print:origin-top print:scale-[0.98]" style={{ minHeight: '297mm', boxSizing: 'border-box' }}>
+            {/* N° d'inscription — top of page */}
+            {crops[0]?.num_inscription && (
+              <div className="flex items-end gap-2 mb-4 text-[11px]">
+                <span className="shrink-0 font-bold">N° d'inscription :</span>
+                <span className="border-b border-dotted border-black/70 px-1 font-bold text-[12px] text-gray-900 min-w-[120px]">
+                  {crops[0].num_inscription}
+                </span>
+              </div>
+            )}
+
             {/* Header Section */}
             <div className="text-center">
               <p className="font-bold uppercase tracking-wider text-[11px] leading-tight">
