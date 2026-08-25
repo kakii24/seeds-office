@@ -16,7 +16,7 @@ const emptyCrop = () => ({
   crop_category: '', type: '', superficie: '', product_nature: '', quantity_requested: '', quantity_unit: '', period: '',
   validee_annee: '', chambre_agri_wilaya: '', activite_principale: '', adresse_exploitation: '', sat_ha: '', sau_ha: '',
   types_culture_fertiliser: '', superficie_fertiliser_ha: '', type_engrais_sollicite: '', qte_engrais_autorisee_ql: '', periode_epandage: '',
-  date_limite_utilisation: ''
+  date_limite_utilisation: '', num_inscription: '', etat_produit: '', formule: ''
 });
 
 export default function App() {

@@ -53,7 +53,10 @@ CREATE TABLE IF NOT EXISTS crop_requests (
   type_engrais_sollicite TEXT DEFAULT '',
   qte_engrais_autorisee_ql TEXT DEFAULT '',
   periode_epandage TEXT DEFAULT '',
-  date_limite_utilisation TEXT DEFAULT ''
+  date_limite_utilisation TEXT DEFAULT '',
+  num_inscription TEXT DEFAULT '',
+  etat_produit TEXT DEFAULT '',
+  formule TEXT DEFAULT ''
 );
 
 CREATE TABLE IF NOT EXISTS deliveries (
@@ -152,6 +155,15 @@ function initDatabase(dbPath) {
   try {
     db.exec(`ALTER TABLE crop_requests ADD COLUMN date_limite_utilisation TEXT DEFAULT ''`);
   } catch (e) {}
+  try {
+    db.exec(`ALTER TABLE crop_requests ADD COLUMN num_inscription TEXT DEFAULT ''`);
+  } catch (e) {}
+  try {
+    db.exec(`ALTER TABLE crop_requests ADD COLUMN etat_produit TEXT DEFAULT ''`);
+  } catch (e) {}
+  try {
+    db.exec(`ALTER TABLE crop_requests ADD COLUMN formule TEXT DEFAULT ''`);
+  } catch (e) {}
 
   return db;
 }
@@ -174,7 +186,7 @@ const CROP_FIELDS = [
   'crop_category', 'type', 'superficie', 'product_nature', 'quantity_requested', 'quantity_unit', 'period',
   'validee_annee', 'chambre_agri_wilaya', 'activite_principale', 'adresse_exploitation', 'sat_ha', 'sau_ha',
   'types_culture_fertiliser', 'superficie_fertiliser_ha', 'type_engrais_sollicite', 'qte_engrais_autorisee_ql', 'periode_epandage',
-  'date_limite_utilisation'
+  'date_limite_utilisation', 'num_inscription', 'etat_produit', 'formule'
 ];
 
 /**
@@ -191,12 +203,12 @@ function saveFarmer({ farmer, crops }) {
       (farmer_id, crop_category, type, superficie, product_nature, quantity_requested, quantity_unit, period,
        validee_annee, chambre_agri_wilaya, activite_principale, adresse_exploitation, sat_ha, sau_ha,
        types_culture_fertiliser, superficie_fertiliser_ha, type_engrais_sollicite, qte_engrais_autorisee_ql, periode_epandage,
-       date_limite_utilisation)
+       date_limite_utilisation, num_inscription, etat_produit, formule)
     VALUES
       (@farmer_id, @crop_category, @type, @superficie, @product_nature, @quantity_requested, @quantity_unit, @period,
        @validee_annee, @chambre_agri_wilaya, @activite_principale, @adresse_exploitation, @sat_ha, @sau_ha,
        @types_culture_fertiliser, @superficie_fertiliser_ha, @type_engrais_sollicite, @qte_engrais_autorisee_ql, @periode_epandage,
-       @date_limite_utilisation)
+       @date_limite_utilisation, @num_inscription, @etat_produit, @formule)
   `);
   const updateCrop = d.prepare(`
     UPDATE crop_requests SET
@@ -208,7 +220,8 @@ function saveFarmer({ farmer, crops }) {
       sat_ha = @sat_ha, sau_ha = @sau_ha, types_culture_fertiliser = @types_culture_fertiliser,
       superficie_fertiliser_ha = @superficie_fertiliser_ha, type_engrais_sollicite = @type_engrais_sollicite,
       qte_engrais_autorisee_ql = @qte_engrais_autorisee_ql, periode_epandage = @periode_epandage,
-      date_limite_utilisation = @date_limite_utilisation
+      date_limite_utilisation = @date_limite_utilisation,
+      num_inscription = @num_inscription, etat_produit = @etat_produit, formule = @formule
     WHERE id = @id AND farmer_id = @farmer_id
   `);
   const deleteCrop = d.prepare('DELETE FROM crop_requests WHERE id = ?');
@@ -233,7 +246,10 @@ function saveFarmer({ farmer, crops }) {
     type_engrais_sollicite: str(crop.type_engrais_sollicite),
     qte_engrais_autorisee_ql: str(crop.qte_engrais_autorisee_ql),
     periode_epandage: str(crop.periode_epandage),
-    date_limite_utilisation: str(crop.date_limite_utilisation)
+    date_limite_utilisation: str(crop.date_limite_utilisation),
+    num_inscription: str(crop.num_inscription),
+    etat_produit: str(crop.etat_produit),
+    formule: str(crop.formule)
   });
 
   const tx = d.transaction(() => {
@@ -372,7 +388,10 @@ const DELIVERY_SELECT = `
     cr.type_engrais_sollicite AS type_engrais_sollicite,
     cr.qte_engrais_autorisee_ql AS qte_engrais_autorisee_ql,
     cr.periode_epandage   AS periode_epandage,
-    cr.date_limite_utilisation AS date_limite_utilisation
+    cr.date_limite_utilisation AS date_limite_utilisation,
+    cr.num_inscription    AS num_inscription,
+    cr.etat_produit       AS etat_produit,
+    cr.formule            AS formule
   FROM crop_requests cr
   JOIN farmers f        ON f.id = cr.farmer_id
   LEFT JOIN deliveries dl ON dl.crop_request_id = cr.id
