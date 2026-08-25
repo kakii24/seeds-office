@@ -1,23 +1,26 @@
 import React, { useMemo } from 'react';
-import { cropFr, cropAr, formatDA, displayDate, fullName } from '../../shared/constants.js';
+import { cropFr, formatDA, displayDate, fullName } from '../../shared/constants.js';
 import { EmptyState } from '../../shared/ui.jsx';
 
 const COLS = [
   '#',
-  'Agriculteur (الفلاح)',
-  'NIN (رقم التعريف الوطني)',
-  'Culture (المحصول)',
-  'Type (النوع)',
-  'Produit (نوع المنتج)',
-  'Qté demandée (الكمية المطلوبة)',
-  'Unité (الوحدة)',
-  'Période (فترة الاستخدام)',
-  'Opérateur (المزود)',
-  'Qté livrée (الكمية المسلمة)',
-  'Montant (DA) (المبلغ)',
-  'N° Facture (رقم الفاتورة)',
-  'Date (التاريخ)',
-  'Service fait (الخدمة)',
+  'N° Inscription',
+  'Agriculteur',
+  'NIN',
+  'Culture',
+  'Type',
+  'Nature de produit',
+  'État du produit',
+  'Formule',
+  'Qté demandée',
+  'Unité',
+  'Période',
+  'Opérateur',
+  'Qté livrée',
+  'Montant (DA)',
+  'N° Facture',
+  'Date',
+  'Service fait',
   'Actions'
 ];
 
@@ -94,7 +97,15 @@ export default function DeliveryTable({ rows, onEdit, onDelete }) {
             {groupedRows.map((r, i) => (
               <tr key={r.id} className="bg-white transition hover:bg-olive-700/5">
                 <td className="border-b border-gray-100 px-3 py-2 text-gray-500">{i + 1}</td>
-                
+
+                {r.isFirstOfGroup ? (
+                  <td
+                    rowSpan={r.groupSize}
+                    className="border-b border-gray-200 px-3 py-2 font-mono text-xs text-gray-700 bg-olive-700/5 align-top"
+                  >
+                    {r.num_inscription || '—'}
+                  </td>
+                ) : null}
                 {r.isFirstOfGroup ? (
                   <td
                     rowSpan={r.groupSize}
@@ -115,10 +126,11 @@ export default function DeliveryTable({ rows, onEdit, onDelete }) {
 
                 <td className="whitespace-nowrap border-b border-gray-100 px-3 py-2">
                   {cropFr(r.crop_category) || '—'}
-                  {cropAr(r.crop_category) && <span className="font-arabic text-xs text-gray-400"> ({cropAr(r.crop_category)})</span>}
                 </td>
                 <td className="border-b border-gray-100 px-3 py-2 text-gray-700">{r.type || '—'}</td>
                 <td className="border-b border-gray-100 px-3 py-2 text-gray-700">{r.product_nature || '—'}</td>
+                <td className="border-b border-gray-100 px-3 py-2 text-gray-700">{r.etat_produit || '—'}</td>
+                <td className="border-b border-gray-100 px-3 py-2 text-gray-700">{r.formule || '—'}</td>
                 <td className="border-b border-gray-100 px-3 py-2 text-gray-700">{r.quantity_requested || '—'}</td>
                 <td className="border-b border-gray-100 px-3 py-2 text-gray-700">{r.quantity_unit || '—'}</td>
                 <td className="border-b border-gray-100 px-3 py-2 text-gray-700">{r.period || '—'}</td>
