@@ -38,8 +38,8 @@ export default function Header({ stats, onNew, onExport, onPrint }) {
       {/* Live stats bar */}
       <div className="mt-3 grid grid-cols-2 gap-3 sm:grid-cols-4">
         <Stat label="Total" value={stats.total} />
-        <Stat label="Effectué (نعم)" value={stats.done} valueClass="text-emerald-300" />
-        <Stat label="En attente (لا)" value={stats.pending} valueClass="text-amber-200" />
+        <Stat label="Effectué" value={stats.done} valueClass="text-emerald-300" />
+        <Stat label="En attente" value={stats.pending} valueClass="text-amber-200" />
         <Stat label="Montant total" value={formatDA(stats.amountTotal)} valueClass="text-amber-300" />
       </div>
     </header>

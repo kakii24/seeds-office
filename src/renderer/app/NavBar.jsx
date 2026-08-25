@@ -1,9 +1,9 @@
 import React from 'react';
 
 const TABS = [
-  { id: 'registration', icon: '🌾', fr: 'Enregistrement', ar: 'التسجيل' },
-  { id: 'distribution', icon: '📦', fr: 'Suivi de Distribution', ar: 'التوزيع' },
-  { id: 'alerts', icon: '⚠️', fr: "Alertes d'utilisation", ar: 'تنبيهات الاستعمال' }
+  { id: 'registration', icon: '🌾', fr: 'Enregistrement' },
+  { id: 'distribution', icon: '📦', fr: 'Suivi de Distribution' },
+  { id: 'alerts', icon: '⚠️', fr: "Alertes d'utilisation" }
 ];
 
 /** Top navigation bar that switches between the two in-app views. */
@@ -31,7 +31,6 @@ export default function NavBar({ view, onChange }) {
             >
               <span className="text-base leading-none">{t.icon}</span>
               <span>{t.fr}</span>
-              <span className={`font-arabic text-xs ${active ? 'text-gray-400' : 'text-white/50'}`}>({t.ar})</span>
             </button>
           );
         })}

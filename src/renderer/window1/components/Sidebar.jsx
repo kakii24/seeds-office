@@ -18,7 +18,6 @@ export default function Sidebar({ farmers, query, onQuery, selectedId, onSelect 
         <div className="mb-3 flex items-center justify-between">
           <h2 className="flex items-center gap-1.5 text-sm font-bold text-forest-900">
             Agriculteurs enregistrés
-            <span className="font-arabic text-xs font-normal text-gray-400">(الفلاحون)</span>
           </h2>
           <span className="rounded-full bg-forest-500/10 px-2.5 py-0.5 text-xs font-bold text-forest-700">
             {filtered.length}

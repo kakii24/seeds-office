@@ -3,12 +3,11 @@ import { fullName, displayDate, todayISO } from '../shared/constants.js';
 import { EmptyState } from '../shared/ui.jsx';
 import { useToast } from '../shared/Toast.jsx';
 
-function StatCard({ label, value, labelAr, valueClass = 'text-white' }) {
+function StatCard({ label, value, valueClass = 'text-white' }) {
   return (
     <div className="flex flex-col rounded-lg bg-white/10 px-4 py-2 border border-white/5">
-      <span className="flex items-center gap-1 text-[10px] font-medium uppercase tracking-wide text-white/70">
-        <span>{label}</span>
-        <span className="font-arabic text-[9px] text-white/50">({labelAr})</span>
+      <span className="text-[10px] font-medium uppercase tracking-wide text-white/70">
+        {label}
       </span>
       <span className={`text-lg font-bold leading-tight ${valueClass}`}>{value}</span>
     </div>
@@ -144,9 +143,9 @@ export default function AlertsView() {
 
         {/* Live stats */}
         <div className="mt-3 grid grid-cols-2 gap-3 sm:grid-cols-3">
-          <StatCard label="Dépassements Actifs" labelAr="حالات التجاوز النشطة" value={overdueRecords.length} valueClass="text-red-200" />
-          <StatCard label="Plus Long Retard" labelAr="أطول مدة تأخير" value={maxOverdueMonths > 0 ? `${maxOverdueMonths} mois` : '—'} valueClass="text-amber-300" />
-          <StatCard label="Filtré par recherche" labelAr="المصفاة بالبحث" value={filteredOverdue.length} valueClass="text-white" />
+          <StatCard label="Dépassements Actifs" value={overdueRecords.length} valueClass="text-red-200" />
+          <StatCard label="Plus Long Retard" value={maxOverdueMonths > 0 ? `${maxOverdueMonths} mois` : '—'} valueClass="text-amber-300" />
+          <StatCard label="Filtré par recherche" value={filteredOverdue.length} valueClass="text-white" />
         </div>
       </header>
 
@@ -192,13 +191,13 @@ export default function AlertsView() {
               <thead>
                 <tr className="bg-red-950 text-left text-xs font-semibold uppercase tracking-wide text-white">
                   <th className="px-4 py-3 border-b border-red-900 w-12">#</th>
-                  <th className="px-4 py-3 border-b border-red-900">Agriculteur <span className="font-arabic font-normal text-white/60">(الفلاح)</span></th>
-                  <th className="px-4 py-3 border-b border-red-900">NIN <span className="font-arabic font-normal text-white/60">(رقم التعريف الوطني)</span></th>
-                  <th className="px-4 py-3 border-b border-red-900">N° Téléphone <span className="font-arabic font-normal text-white/60">(الهاتف)</span></th>
-                  <th className="px-4 py-3 border-b border-red-900">Type d'engrais <span className="font-arabic font-normal text-white/60">(نوع السماد)</span></th>
-                  <th className="px-4 py-3 border-b border-red-900">Quantité <span className="font-arabic font-normal text-white/60">(الكمية)</span></th>
-                  <th className="px-4 py-3 border-b border-red-900">Période d'utilisation <span className="font-arabic font-normal text-white/60">(فترة الاستخدام)</span></th>
-                  <th className="px-4 py-3 border-b border-red-900 text-center w-40">Mois de retard <span className="font-arabic font-normal text-white/60">(أشهر التأخير)</span></th>
+                  <th className="px-4 py-3 border-b border-red-900">Agriculteur</th>
+                  <th className="px-4 py-3 border-b border-red-900">NIN</th>
+                  <th className="px-4 py-3 border-b border-red-900">N° Téléphone</th>
+                  <th className="px-4 py-3 border-b border-red-900">Type d'engrais</th>
+                  <th className="px-4 py-3 border-b border-red-900">Quantité</th>
+                  <th className="px-4 py-3 border-b border-red-900">Période d'utilisation</th>
+                  <th className="px-4 py-3 border-b border-red-900 text-center w-40">Mois de retard</th>
                 </tr>
               </thead>
               <tbody>
